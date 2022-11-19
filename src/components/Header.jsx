@@ -12,14 +12,32 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
+import { useNavigate } from "react-router-dom";
 
 const drawerWidth = 240;
-const navItems = ["Home", "About Us", "Products", "Contact Us"];
+const navItems = [
+  {
+    title: "Home",
+    path: "/",
+  },
+  {
+    title: "About Us",
+    path: "/",
+  },
+  {
+    title: "Products",
+    path: "/",
+  },
+  {
+    title: "Contact Us",
+    path: "/",
+  },
+];
 
 export default function Header(props) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
-
+  const navigate = useNavigate();
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
@@ -34,7 +52,7 @@ export default function Header(props) {
         {navItems.map((item) => (
           <ListItem key={item} disablePadding>
             <ListItemButton sx={{ textAlign: "center" }}>
-              <ListItemText primary={item} />
+              <ListItemText primary={item.title} />
             </ListItemButton>
           </ListItem>
         ))}
@@ -86,8 +104,12 @@ export default function Header(props) {
           </Typography> */}
           <Box sx={{ display: { xs: "none", sm: "block" } }}>
             {navItems.map((item) => (
-              <Button key={item} sx={{ color: "#fff" }}>
-                {item}
+              <Button
+                key={item.title}
+                sx={{ color: "#fff" }}
+                onClick={() => navigate(item.path)}
+              >
+                {item.title}
               </Button>
             ))}
           </Box>
