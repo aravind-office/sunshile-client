@@ -13,36 +13,64 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import { useNavigate } from "react-router-dom";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { Menu, MenuItem, Popover } from "@mui/material";
 
 const drawerWidth = 240;
-const navItems = [
-  {
-    title: "Products",
-    path: "/",
-  },
-  {
-    title: "Enquiry",
-    path: "/enquiry",
-  },
-
-  {
-    title: "Contact Us",
-    path: "/",
-  },
-];
 
 export default function Header(props) {
   const { window } = props;
+
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const navigate = useNavigate();
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
+  const token = localStorage.getItem("token");
+
+  const navItems = token
+    ? [
+        {
+          title: "Products",
+          path: "/",
+        },
+        {
+          title: "Enquiry",
+          path: "/enquiry",
+        },
+      ]
+    : [
+        {
+          title: "Products",
+          path: "/",
+        },
+
+        {
+          title: "Contact Us",
+          path: "/",
+        },
+      ];
+  const container =
+    window !== undefined ? () => window().document.body : undefined;
+  const [anchorEl, setAnchorEl] = React.useState();
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const logoutHandler = () => {
+    console.log("logout");
+    localStorage.clear();
+    location.reload();
+    // navigate("/admin/login");
+  };
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: "center" }}>
       <Typography variant="h6" sx={{ my: 2 }}>
-        MUI
+        Sunshine International
       </Typography>
       <Divider />
       <List>
@@ -53,12 +81,44 @@ export default function Header(props) {
             </ListItemButton>
           </ListItem>
         ))}
+        {token && (
+          <ListItem disablePadding>
+            <IconButton
+              size="large"
+              id="mobile"
+              aria-label="account of current user"
+              aria-controls="menu-appbar"
+              aria-haspopup="true"
+              onClick={handleMenu}
+              color="inherit"
+            >
+              <LogoutIcon />
+            </IconButton>
+            <Popover
+              id="mobile"
+              open={Boolean(anchorEl)}
+              onClose={handleClose}
+              anchorEl={anchorEl}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "left",
+              }}
+            >
+              <button
+                sx={{ p: 2 }}
+                style={{
+                  border: "0px",
+                }}
+                onClick={logoutHandler}
+              >
+                Logout
+              </button>
+            </Popover>
+          </ListItem>
+        )}
       </List>
     </Box>
   );
-
-  const container =
-    window !== undefined ? () => window().document.body : undefined;
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -87,9 +147,11 @@ export default function Header(props) {
               letterSpacing: ".3rem",
               color: "inherit",
               textDecoration: "none",
+              cursor: "pointer",
             }}
+            onClick={() => navigate("/")}
           >
-            LOGO
+            Sunshine International
           </Typography>
 
           {/* <Typography
@@ -100,15 +162,48 @@ export default function Header(props) {
             MUI
           </Typography> */}
           <Box sx={{ display: { xs: "none", sm: "block" } }}>
-            {navItems.map((item) => (
+            {navItems.map((item, index) => (
               <Button
-                key={item.title}
+                key={index}
                 sx={{ color: "#fff" }}
                 onClick={() => navigate(item.path)}
               >
                 {item.title}
               </Button>
             ))}
+            {token && (
+              <>
+                <IconButton
+                  size="large"
+                  aria-label="account of current user"
+                  aria-controls="menu-appbar"
+                  aria-haspopup="true"
+                  onClick={handleMenu}
+                  color="inherit"
+                >
+                  <LogoutIcon />
+                </IconButton>
+              </>
+            )}
+            <Popover
+              open={Boolean(anchorEl)}
+              onClose={handleClose}
+              anchorEl={anchorEl}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "left",
+              }}
+            >
+              <button
+                sx={{ p: 2 }}
+                style={{
+                  border: "0px",
+                }}
+                onClick={logoutHandler}
+              >
+                Logout
+              </button>
+            </Popover>
           </Box>
         </Toolbar>
       </AppBar>

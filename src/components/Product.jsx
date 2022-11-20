@@ -42,6 +42,7 @@ const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 const theme = createTheme();
 
 export default function Product() {
+  const token = localStorage.getItem("token");
   const [page, setPage] = React.useState(1);
   const [showAddProduct, setShowAddProduct] = React.useState(false);
   const [cards, setCards] = React.useState([]);
@@ -86,6 +87,7 @@ export default function Product() {
           getAllProduct();
           toast.success(message);
           onCloseHandler();
+          navigate(`products/${data?.product?.id}`);
         } else {
           toast.warn(message);
         }
@@ -147,75 +149,77 @@ export default function Product() {
               <Typography variant="h6">Featured Products</Typography>
             </div>
             <div>
-              <Button
-                size="small"
-                variant="contained"
-                onClick={() => setShowAddProduct(true)}
-              >
-                Add Product
-              </Button>
+              {token && (
+                <Button
+                  size="small"
+                  variant="contained"
+                  onClick={() => setShowAddProduct(true)}
+                >
+                  Add Product
+                </Button>
+              )}
             </div>
           </div>
-
           {/* End hero unit */}
-
-          <Grid container spacing={4}>
-            {cards.length === 0 && (
-              <>
-                {" "}
-                <img
-                  style={{
-                    width: "200px",
-                  }}
-                  src="/assets/norecord.png"
-                ></img>
-                <div>No product found . please add the product</div>
-              </>
-            )}
-            {cards.map((card, index) => (
-              <Grid item key={card} xs={12} sm={6} md={4}>
-                <Card
-                  sx={{
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    cursor: "pointer",
-                  }}
-                  onClick={() => navigate(`/products/${card.id}`)}
-                >
-                  <CardMedia
-                    component="img"
-                    image={card?.image?.previewUrl}
-                    style={{
-                      // width: "330px",
-                      height: "200px",
-                      objectFit: "contain",
-                    }}
-                    alt="random"
-                  />
-
-                  <Typography gutterBottom variant="h5" component="h2">
-                    {card?.name}
-                  </Typography>
-
-                  <CardActions
-                    style={{
-                      marginTop: "0px",
-                      justifyContent: "center",
-                      marginBottom: "10px",
-                    }}
-                  >
-                    <Stack direction="row" spacing={2}>
-                      <IconButton
-                        style={{ color: "red" }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onDeleteProdApi(card?.id);
+          {cards.length === 0 ? (
+            <>
+              {" "}
+              <img
+                style={{
+                  width: "200px",
+                }}
+                src="/assets/norecord.png"
+              ></img>
+              <div>No product found . please add the product</div>
+            </>
+          ) : (
+            <>
+              <Grid container spacing={4}>
+                {cards.map((card, index) => (
+                  <Grid item key={card} xs={12} sm={6} md={4}>
+                    <Card
+                      sx={{
+                        height: "100%",
+                        width: "200px",
+                        display: "flex",
+                        flexDirection: "column",
+                        cursor: "pointer",
+                      }}
+                      onClick={() => navigate(`/products/${card.id}`)}
+                    >
+                      <CardMedia
+                        component="img"
+                        image={card?.image?.previewUrl}
+                        style={{
+                          // width: "330px",
+                          height: "200px",
+                          objectFit: "contain",
                         }}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                      {/* <IconButton
+                        alt="random"
+                      />
+
+                      <Typography gutterBottom variant="h5" component="h2">
+                        {card?.name}
+                      </Typography>
+                      {token && (
+                        <CardActions
+                          style={{
+                            marginTop: "0px",
+                            justifyContent: "center",
+                            marginBottom: "10px",
+                          }}
+                        >
+                          <Stack direction="row" spacing={2}>
+                            <IconButton
+                              style={{ color: "red" }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onDeleteProdApi(card?.id);
+                              }}
+                            >
+                              <DeleteIcon />
+                            </IconButton>
+                            {/* <IconButton
                         onClick={(e) => {
                           e.stopPropagation();
                           setPname(card?.name);
@@ -224,14 +228,16 @@ export default function Product() {
                       >
                         <EditIcon />
                       </IconButton> */}
-                    </Stack>
-                  </CardActions>
-                </Card>
+                          </Stack>
+                        </CardActions>
+                      )}
+                    </Card>
+                  </Grid>
+                ))}
               </Grid>
-            ))}
-          </Grid>
+            </>
+          )}
           {/* {cards.length / 6} */}
-
           {/* {page} */}
           {/* <Pagination
             style={{

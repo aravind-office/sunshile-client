@@ -15,7 +15,7 @@ function Router() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/products/:id" element={<SubCategories />} />
-        <Route path="/enquiry-form" element={<EnquiryForm />} />
+        <Route path="/enquiry-form/:categoryId" element={<EnquiryForm />} />
         <Route path="/admin/login" element={<Login />} />
         <Route path="/enquiry" element={<Enquiry />} />
         {/* admin login

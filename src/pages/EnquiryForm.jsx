@@ -17,6 +17,10 @@ import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
+import { apiUrl } from "../components/config/apiConfig";
+import { toast } from "react-toastify";
 
 function Copyright() {
   return (
@@ -31,28 +35,37 @@ function Copyright() {
   );
 }
 
-const steps = ["Shipping address", "Payment details", "Review your order"];
-
-function getStepContent(step) {
-  switch (step) {
-    case 0:
-      return "";
-    default:
-      throw new Error("Unknown step");
-  }
-}
-
 const theme = createTheme();
 
 export default function EnquiryForm() {
-  const [activeStep, setActiveStep] = React.useState(0);
+  const navigate = useNavigate();
+  const { categoryId } = useParams();
+  const [enquiryFormData, setEnquiryFormData] = React.useState();
 
-  const handleNext = () => {
-    setActiveStep(activeStep + 1);
+  const onChangeHandler = (e) => {
+    setEnquiryFormData((prevState) => {
+      return {
+        ...prevState,
+        [e.target.name]: e.target.value,
+      };
+    });
   };
+  const onEnquiryApiHandler = () => {
+    const req = {
+      ...enquiryFormData,
+      pincode: Number(enquiryFormData.pincode),
+      categoryId,
+    };
 
-  const handleBack = () => {
-    setActiveStep(activeStep - 1);
+    axios.post(`${apiUrl}/enquiry`, req).then((res) => {
+      const { status, message, data } = res.data;
+      if (status === 201) {
+        toast.success("Enquiry sent successfully");
+        navigate(`/`);
+      } else {
+        toast.warn(message);
+      }
+    });
   };
 
   return (
@@ -77,6 +90,7 @@ export default function EnquiryForm() {
                   name="firstName"
                   label="First name"
                   fullWidth
+                  onChange={onChangeHandler}
                   autoComplete="given-name"
                   variant="standard"
                 />
@@ -87,6 +101,7 @@ export default function EnquiryForm() {
                   id="lastName"
                   name="lastName"
                   label="Last name"
+                  onChange={onChangeHandler}
                   fullWidth
                   autoComplete="family-name"
                   variant="standard"
@@ -96,17 +111,18 @@ export default function EnquiryForm() {
                 <TextField
                   required
                   id="address1"
-                  name="address1"
-                  label="Phone Number"
+                  name="mobileNo"
+                  label="Contact Number"
+                  onChange={onChangeHandler}
                   fullWidth
-                  autoComplete="shipping address-line1"
                   variant="standard"
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
                   id="address2"
-                  name="address2"
+                  name="email"
+                  onChange={onChangeHandler}
                   label="Email Address"
                   fullWidth
                   autoComplete="shipping address-line2"
@@ -118,8 +134,9 @@ export default function EnquiryForm() {
                 <TextField
                   required
                   id="zip"
-                  name="zip"
-                  label="Zip / Postal code"
+                  name="pincode"
+                  label="Postal code"
+                  onChange={onChangeHandler}
                   fullWidth
                   autoComplete="shipping postal-code"
                   variant="standard"
@@ -129,6 +146,8 @@ export default function EnquiryForm() {
                 <TextField
                   id="outlined-multiline-static"
                   label="Enquiry"
+                  name="enquiry"
+                  onChange={onChangeHandler}
                   fullWidth
                   multiline
                   required
@@ -141,7 +160,7 @@ export default function EnquiryForm() {
             <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
               <Button
                 variant="contained"
-                onClick={handleNext}
+                onClick={onEnquiryApiHandler}
                 sx={{ mt: 3, ml: 1 }}
               >
                 Submit

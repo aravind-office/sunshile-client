@@ -171,7 +171,10 @@ function SubCategoriesDetails(props) {
           <Button autoFocus onClick={onClose}>
             close
           </Button>
-          <Button onClick={() => navigate("/enquiry-form")} autoFocus>
+          <Button
+            onClick={() => navigate(`/enquiry-form/${categoryId}`)}
+            autoFocus
+          >
             Enquiry Now
           </Button>
         </DialogActions>

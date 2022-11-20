@@ -18,9 +18,12 @@ import SubCategoriesDetails from "./SubCategoriesDetails";
 import axios from "axios";
 import { apiUrl } from "../components/config/apiConfig";
 import { toast } from "react-toastify";
+import { Stack } from "react-bootstrap";
 
+import DeleteIcon from "@mui/icons-material/Delete";
 export default function SubCategories() {
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
   const { id } = useParams();
   const theme = useTheme();
 
@@ -114,6 +117,26 @@ export default function SubCategories() {
       });
   };
 
+  const onDeleteCategoryApi = (pId) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      axios
+        .delete(`${apiUrl}/admin/category/${pId}`, {
+          headers: {
+            Authorization: token,
+          },
+        })
+        .then((res) => {
+          const { status, message, data } = res.data;
+          if (status === 200) {
+            toast.success(message);
+            getProductCategoryById();
+          } else {
+            toast.warn(message);
+          }
+        });
+    }
+  };
   return (
     <>
       {" "}
@@ -130,13 +153,15 @@ export default function SubCategories() {
           <Typography variant="h6">Featured Product Category</Typography>
         </div>
         <div>
-          <Button
-            size="small"
-            variant="contained"
-            onClick={() => setShowAddProduct(true)}
-          >
-            Add Category
-          </Button>
+          {token && (
+            <Button
+              size="small"
+              variant="contained"
+              onClick={() => setShowAddProduct(true)}
+            >
+              Add Category
+            </Button>
+          )}
         </div>
       </div>
       <Card sx={{ padding: "10px 20px" }}>
@@ -154,7 +179,8 @@ export default function SubCategories() {
             <div>{product?.name}</div>
           </Grid>
           <Grid item xs={8} sm={8} md={8}>
-            {category.length === 0 && (
+            {console.log(category.length)}
+            {category.length === 0 ? (
               <>
                 {" "}
                 <img
@@ -165,82 +191,123 @@ export default function SubCategories() {
                 ></img>
                 <div>No product found . please add the product</div>
               </>
-            )}
-            <Grid container spacing={4}>
-              {category &&
-                category.map((card, index) => (
-                  <Grid item key={card} xs={12} sm={6} md={4}>
-                    <Card
-                      sx={{
-                        height: "100%",
-                        display: "flex",
-                        flexDirection: "column",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <CardMedia
-                        component="img"
-                        image={card?.image?.previewUrl}
-                        style={{
-                          // width: "330px",
-                          height: "200px",
-                          objectFit: "contain",
-                          position: "relative",
-                        }}
-                        alt="random"
-                      />
-
-                      {/* </CardMedia> */}
-                      <CardContent sx={{ flexGrow: 1 }}>
-                        <Typography
-                          gutterBottom
-                          variant="h5"
-                          component="h2"
-                          style={{
-                            // position: "absolute",
-                            // top: "350px",
-                            background:
-                              "linear-gradient(180deg,rgba(0,0,0,0.0001) 0%,#00000 100%)",
-                            opacity: "0.6",
-                            mixBlendMode: "normal",
-                            // color: "white",
-                          }}
-                        >
-                          {card?.name}
-                        </Typography>
-                        <Typography>Unit : {card?.unit}</Typography>
-                        <Typography>Ton : {card?.ton}</Typography>
-                      </CardContent>
-                      <CardActions
-                        style={{
-                          justifyContent: "space-around",
-                          marginBottom: "10px",
+            ) : (
+              <Grid container spacing={4}>
+                {category &&
+                  category.map((card, index) => (
+                    <Grid item key={card} xs={12} sm={6} md={4}>
+                      <Card
+                        sx={{
+                          height: "100%",
+                          display: "flex",
+                          flexDirection: "column",
+                          cursor: "pointer",
                         }}
                       >
-                        <Typography
+                        <CardMedia
+                          component="img"
+                          image={card?.image?.previewUrl}
                           style={{
-                            color: "green",
+                            // width: "330px",
+                            height: "200px",
+                            objectFit: "contain",
+                            position: "relative",
                           }}
-                        >
-                          Rs. {card?.amount}
-                        </Typography>
-                        <Button
-                          size="small"
-                          variant="contained"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setProductDetails(card);
-                            setShowProductDetails(true);
-                            // navigate("/enquiry-form");
-                          }}
-                        >
-                          Enquiry
-                        </Button>
-                      </CardActions>
-                    </Card>
-                  </Grid>
-                ))}
-            </Grid>
+                          alt="random"
+                        />
+
+                        {/* </CardMedia> */}
+                        <CardContent sx={{ flexGrow: 1 }}>
+                          <Typography
+                            gutterBottom
+                            variant="h5"
+                            component="h2"
+                            style={{
+                              // position: "absolute",
+                              // top: "350px",
+                              background:
+                                "linear-gradient(180deg,rgba(0,0,0,0.0001) 0%,#00000 100%)",
+                              opacity: "0.6",
+                              mixBlendMode: "normal",
+                              // color: "white",
+                            }}
+                          >
+                            {card?.name}
+                          </Typography>
+                          <Typography>Unit : {card?.unit}</Typography>
+                          <Typography>Ton : {card?.ton}</Typography>
+                          {token && (
+                            <Typography
+                              style={{
+                                color: "green",
+                              }}
+                            >
+                              Rs. {card?.amount}
+                            </Typography>
+                          )}
+                        </CardContent>
+
+                        {token ? (
+                          <CardActions
+                            style={{
+                              justifyContent: "space-around",
+                              marginBottom: "10px",
+                            }}
+                          >
+                            <Stack direction="row" spacing={2}>
+                              <IconButton
+                                style={{ color: "red" }}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  onDeleteCategoryApi(card?.categoryId);
+                                }}
+                              >
+                                <DeleteIcon />
+                              </IconButton>
+                              {/* <IconButton
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPname(card?.name);
+                          setShowAddProduct(true);
+                        }}
+                      >
+                        <EditIcon />
+                      </IconButton> */}
+                            </Stack>
+                          </CardActions>
+                        ) : (
+                          <CardActions
+                            style={{
+                              justifyContent: "space-around",
+                              marginBottom: "10px",
+                            }}
+                          >
+                            <Typography
+                              style={{
+                                color: "green",
+                              }}
+                            >
+                              Rs. {card?.amount}
+                            </Typography>
+                            <Button
+                              size="small"
+                              variant="contained"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setProductDetails(card);
+                                setShowProductDetails(true);
+                                // navigate("/enquiry-form");
+                              }}
+                            >
+                              Enquiry
+                            </Button>
+                          </CardActions>
+                        )}
+                      </Card>
+                    </Grid>
+                  ))}{" "}
+              </Grid>
+            )}
             <Pagination
               style={{
                 display: "flex",
