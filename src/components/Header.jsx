@@ -17,17 +17,14 @@ import { useNavigate } from "react-router-dom";
 const drawerWidth = 240;
 const navItems = [
   {
-    title: "Home",
-    path: "/",
-  },
-  {
-    title: "About Us",
-    path: "/",
-  },
-  {
     title: "Products",
     path: "/",
   },
+  {
+    title: "Enquiry",
+    path: "/enquiry",
+  },
+
   {
     title: "Contact Us",
     path: "/",

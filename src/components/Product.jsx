@@ -10,14 +10,20 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Grid from "@mui/material/Grid";
 import Stack from "@mui/material/Stack";
 import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Container from "@mui/material/Container";
 import Link from "@mui/material/Link";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { Pagination } from "@mui/material";
+import { IconButton, Pagination } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import ResponsiveDialog from "./ResponsiveDialog";
+import AddProductForm from "./AddProductForm";
+import { toast } from "react-toastify";
+import axios from "axios";
+import { apiUrl } from "./config/apiConfig";
 
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 function Copyright() {
   return (
     <Typography variant="body2" color="text.secondary" align="center">
@@ -37,18 +43,135 @@ const theme = createTheme();
 
 export default function Product() {
   const [page, setPage] = React.useState(1);
+  const [showAddProduct, setShowAddProduct] = React.useState(false);
+  const [cards, setCards] = React.useState([]);
   const navigate = useNavigate();
   const handleChange = (event, value) => {
     setPage(value);
   };
+
+  const [file, setFile] = React.useState();
+  const [pName, setPname] = React.useState();
+
+  React.useEffect(() => {
+    getAllProduct();
+  }, []);
+
+  const addProductHandler = () => {
+    if (!file || !pName) {
+      toast.info("file / product name is required");
+    } else {
+      const formData = new FormData();
+      file ? formData.append("file", file) : "";
+      axios.post(`${apiUrl}/file`, formData).then((res) => {
+        const { status, message, data } = res.data;
+        if (status === 201) {
+          addProductApi(data?.imageId);
+        } else {
+          toast.warn(message);
+        }
+      });
+    }
+  };
+
+  const addProductApi = (imageId) => {
+    axios
+      .post(`${apiUrl}/admin/product`, {
+        name: pName,
+        imageId: imageId,
+      })
+      .then((res) => {
+        const { status, message, data } = res.data;
+        if (status === 201) {
+          getAllProduct();
+          toast.success(message);
+          onCloseHandler();
+        } else {
+          toast.warn(message);
+        }
+      });
+  };
+
+  const getAllProduct = () => {
+    axios.get(`${apiUrl}/product`).then((res) => {
+      const { status, message, data } = res.data;
+      if (status === 200) {
+        setCards(data?.products);
+      } else {
+        toast.warn(message);
+      }
+    });
+  };
+
+  const onCloseHandler = () => {
+    setShowAddProduct(false);
+    setFile("");
+    setPname("");
+  };
+
+  const onDeleteProdApi = (pId) => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      axios
+        .delete(`${apiUrl}/admin/product/${pId}`, {
+          headers: {
+            Authorization: token,
+          },
+        })
+        .then((res) => {
+          const { status, message, data } = res.data;
+          if (status === 200) {
+            toast.success(message);
+            getAllProduct();
+          } else {
+            toast.warn(message);
+          }
+        });
+    }
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
 
       <main>
         <Container sx={{ py: 8 }} maxWidth="md">
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "20px",
+            }}
+          >
+            <div>
+              <Typography variant="h6">Featured Products</Typography>
+            </div>
+            <div>
+              <Button
+                size="small"
+                variant="contained"
+                onClick={() => setShowAddProduct(true)}
+              >
+                Add Product
+              </Button>
+            </div>
+          </div>
+
           {/* End hero unit */}
+
           <Grid container spacing={4}>
+            {cards.length === 0 && (
+              <>
+                {" "}
+                <img
+                  style={{
+                    width: "200px",
+                  }}
+                  src="/assets/norecord.png"
+                ></img>
+                <div>No product found . please add the product</div>
+              </>
+            )}
             {cards.map((card, index) => (
               <Grid item key={card} xs={12} sm={6} md={4}>
                 <Card
@@ -58,47 +181,59 @@ export default function Product() {
                     flexDirection: "column",
                     cursor: "pointer",
                   }}
-                  onClick={() => navigate(`/products/${index}`)}
+                  onClick={() => navigate(`/products/${card.id}`)}
                 >
                   <CardMedia
                     component="img"
-                    image="https://source.unsplash.com/random"
+                    image={card?.image?.previewUrl}
                     style={{
-                      width: "330px",
-                      height: "230px",
-                      objectFit: "fill",
+                      // width: "330px",
+                      height: "200px",
+                      objectFit: "contain",
                     }}
                     alt="random"
                   />
-                  <CardContent sx={{ flexGrow: 1 }}>
-                    <Typography gutterBottom variant="h5" component="h2">
-                      River Sand
-                    </Typography>
-                    <Typography>Rs. 800</Typography>
-                  </CardContent>
+
+                  <Typography gutterBottom variant="h5" component="h2">
+                    {card?.name}
+                  </Typography>
+
                   <CardActions
                     style={{
+                      marginTop: "0px",
                       justifyContent: "center",
                       marginBottom: "10px",
                     }}
                   >
-                    <Button
-                      size="small"
-                      variant="contained"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        console.log("ordernow", index);
-                      }}
-                    >
-                      Order Now
-                    </Button>
+                    <Stack direction="row" spacing={2}>
+                      <IconButton
+                        style={{ color: "red" }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteProdApi(card?.id);
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                      {/* <IconButton
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setPname(card?.name);
+                          setShowAddProduct(true);
+                        }}
+                      >
+                        <EditIcon />
+                      </IconButton> */}
+                    </Stack>
                   </CardActions>
                 </Card>
               </Grid>
             ))}
           </Grid>
+          {/* {cards.length / 6} */}
+
           {/* {page} */}
-          <Pagination
+          {/* <Pagination
             style={{
               display: "flex",
               justifyContent: "center",
@@ -106,9 +241,9 @@ export default function Product() {
             }}
             page={page}
             onChange={handleChange}
-            count={10}
+            count={cards.length < 6 ? 1 : cards.length / 6}
             color="primary"
-          />
+          /> */}
         </Container>
       </main>
       {/* Footer */}
@@ -127,6 +262,16 @@ export default function Product() {
         <Copyright />
       </Box>
       {/* End footer */}
+
+      <ResponsiveDialog
+        open={showAddProduct}
+        onClose={onCloseHandler}
+        title="Add Product"
+        content={
+          <AddProductForm setFile={setFile} setPname={setPname} pName={pName} />
+        }
+        submit={addProductHandler}
+      />
     </ThemeProvider>
   );
 }
