@@ -77,10 +77,18 @@ export default function Product() {
 
   const addProductApi = (imageId) => {
     axios
-      .post(`${apiUrl}/admin/product`, {
-        name: pName,
-        imageId: imageId,
-      })
+      .post(
+        `${apiUrl}/admin/product`,
+        {
+          name: pName,
+          imageId: imageId,
+        },
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      )
       .then((res) => {
         const { status, message, data } = res.data;
         if (status === 201) {
@@ -136,90 +144,98 @@ export default function Product() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
 
-      <main>
-        <Container sx={{ py: 8 }} maxWidth="md">
-          <div
+      {/* <main> */}
+      {/* <Container sx={{ py: 8 }} maxWidth="md"> */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginBottom: "20px",
+          marginTop: "50px",
+        }}
+      >
+        <div>
+          <Typography variant="h6">Featured Products</Typography>
+        </div>
+        <div>
+          {token && (
+            <Button
+              size="small"
+              variant="contained"
+              onClick={() => setShowAddProduct(true)}
+            >
+              Add Product
+            </Button>
+          )}
+        </div>
+      </div>
+      {/* End hero unit */}
+      {cards.length === 0 ? (
+        <>
+          {" "}
+          <img
             style={{
-              display: "flex",
-              justifyContent: "space-between",
-              marginBottom: "20px",
+              width: "200px",
             }}
+            src="/assets/norecord.png"
+          ></img>
+          <div>No product found . please add the product</div>
+        </>
+      ) : (
+        <>
+          <Grid
+            container
+            spacing={4}
+            // style={{
+            //   width: "800px",
+            // }}
           >
-            <div>
-              <Typography variant="h6">Featured Products</Typography>
-            </div>
-            <div>
-              {token && (
-                <Button
-                  size="small"
-                  variant="contained"
-                  onClick={() => setShowAddProduct(true)}
+            {cards.map((card, index) => (
+              <Grid item key={card} xs={12} sm={6} md={3}>
+                <Card
+                  sx={{
+                    height: "100%",
+                    width: "200px",
+                    marginRight: "10px",
+                    display: "flex",
+                    flexDirection: "column",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => navigate(`/products/${card.id}`)}
                 >
-                  Add Product
-                </Button>
-              )}
-            </div>
-          </div>
-          {/* End hero unit */}
-          {cards.length === 0 ? (
-            <>
-              {" "}
-              <img
-                style={{
-                  width: "200px",
-                }}
-                src="/assets/norecord.png"
-              ></img>
-              <div>No product found . please add the product</div>
-            </>
-          ) : (
-            <>
-              <Grid container spacing={4}>
-                {cards.map((card, index) => (
-                  <Grid item key={card} xs={12} sm={6} md={4}>
-                    <Card
-                      sx={{
-                        height: "100%",
-                        width: "200px",
-                        display: "flex",
-                        flexDirection: "column",
-                        cursor: "pointer",
-                      }}
-                      onClick={() => navigate(`/products/${card.id}`)}
-                    >
-                      <CardMedia
-                        component="img"
-                        image={card?.image?.previewUrl}
-                        style={{
-                          // width: "330px",
-                          height: "200px",
-                          objectFit: "contain",
-                        }}
-                        alt="random"
-                      />
+                  <CardMedia
+                    component="img"
+                    image={card?.image?.previewUrl}
+                    style={{
+                      // width: "330px",
+                      height: "200px",
+                      objectFit: "contain",
+                    }}
+                    alt="random"
+                  />
 
-                      <Typography gutterBottom variant="h5" component="h2">
-                        {card?.name}
-                      </Typography>
-                      {token && (
-                        <CardActions
-                          style={{
-                            marginTop: "0px",
-                            justifyContent: "center",
-                            marginBottom: "10px",
+                  <Typography gutterBottom variant="h5" component="h2">
+                    {card?.name}
+                  </Typography>
+                  {token && (
+                    <CardActions
+                      style={{
+                        marginTop: "0px",
+                        justifyContent: "center",
+                        marginBottom: "10px",
+                      }}
+                    >
+                      <Stack direction="row" spacing={2}>
+                        <IconButton
+                          style={{ color: "red" }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDeleteProdApi(card?.id);
                           }}
                         >
-                          <Stack direction="row" spacing={2}>
-                            <IconButton
-                              style={{ color: "red" }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onDeleteProdApi(card?.id);
-                              }}
-                            >
-                              <DeleteIcon />
-                            </IconButton>
-                            {/* <IconButton
+                          <DeleteIcon />
+                        </IconButton>
+                        {/* <IconButton
                         onClick={(e) => {
                           e.stopPropagation();
                           setPname(card?.name);
@@ -228,30 +244,30 @@ export default function Product() {
                       >
                         <EditIcon />
                       </IconButton> */}
-                          </Stack>
-                        </CardActions>
-                      )}
-                    </Card>
-                  </Grid>
-                ))}
+                      </Stack>
+                    </CardActions>
+                  )}
+                </Card>
               </Grid>
-            </>
-          )}
-          {/* {cards.length / 6} */}
-          {/* {page} */}
-          {/* <Pagination
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              marginTop: "60px",
-            }}
-            page={page}
-            onChange={handleChange}
-            count={cards.length < 6 ? 1 : cards.length / 6}
-            color="primary"
-          /> */}
-        </Container>
-      </main>
+            ))}
+          </Grid>
+        </>
+      )}
+      {/* {cards.length / 6} */}
+      {/* {page} */}
+      <Pagination
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          marginTop: "60px",
+        }}
+        page={page}
+        onChange={handleChange}
+        count={5}
+        color="primary"
+      />
+      {/* </Container> */}
+      {/* </main> */}
       {/* Footer */}
       <Box sx={{ bgcolor: "background.paper", p: 6 }} component="footer">
         <Typography variant="h6" align="center" gutterBottom>

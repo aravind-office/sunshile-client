@@ -97,14 +97,22 @@ export default function SubCategories() {
 
   const addCategoryApi = (imageId) => {
     axios
-      .post(`${apiUrl}/admin/category`, {
-        productId: id,
-        imageId: imageId,
-        name: categoryData?.name,
-        unit: Number(categoryData?.unit),
-        ton: Number(categoryData?.ton),
-        amount: Number(categoryData?.amount),
-      })
+      .post(
+        `${apiUrl}/admin/category`,
+        {
+          productId: id,
+          imageId: imageId,
+          name: categoryData?.name,
+          unit: Number(categoryData?.unit),
+          ton: Number(categoryData?.ton),
+          amount: Number(categoryData?.amount),
+        },
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      )
       .then((res) => {
         const { status, message, data } = res.data;
         if (status === 201) {
