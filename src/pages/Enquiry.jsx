@@ -71,6 +71,7 @@ export default function Enquiry() {
   const [enquiry, setEnquiry] = React.useState();
   const [showFilter, setShowFilter] = React.useState(false);
   const [filterBy, setFilterBy] = React.useState(1);
+  const [filterOpn, setFilterOpn] = React.useState(null);
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -86,7 +87,7 @@ export default function Enquiry() {
 
   const getAllEnquiry = () => {
     axios
-      .get(`${apiUrl}/admin/enquiry/${page + 1}/${rowsPerPage}`, {
+      .get(`${apiUrl}/admin/enquiry/${page + 1}/${rowsPerPage}?${filterOpn}`, {
         headers: {
           Authorization: token,
         },
@@ -131,6 +132,12 @@ export default function Enquiry() {
           toast.warn(message);
         }
       });
+  };
+
+  const onSearchHandler = (filterByVal) => {
+    if (filterByVal === "status") {
+      setFilterOpn({ name: "status", val: "PENDING" });
+    }
   };
   return (
     <Paper sx={{ width: "100%", overflow: "hidden", marginTop: "50px" }}>
@@ -190,7 +197,12 @@ export default function Enquiry() {
                   {column.label === "DateTime" ||
                   column.label === "Contact" ||
                   column.label === "Status" ? (
-                    <IconButton onClick={() => setFilterBy(column.label)}>
+                    <IconButton
+                      onClick={() => {
+                        setFilterBy(column.label);
+                        onSearchHandler(column.label);
+                      }}
+                    >
                       <FilterListIcon />
                     </IconButton>
                   ) : (
