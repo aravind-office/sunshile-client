@@ -12,12 +12,12 @@ import Button from "@mui/material/Button";
 import Link from "@mui/material/Link";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import Grid from "@mui/material/Grid";
 import TextField from "@mui/material/TextField";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Checkbox from "@mui/material/Checkbox";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import { apiUrl } from "../components/config/apiConfig";
 import { toast } from "react-toastify";
@@ -40,6 +40,8 @@ const theme = createTheme();
 export default function EnquiryForm() {
   const navigate = useNavigate();
   const { categoryId } = useParams();
+  const location = useLocation();
+  console.log(location, "state");
   const [enquiryFormData, setEnquiryFormData] = React.useState();
 
   const onChangeHandler = (e) => {
@@ -51,21 +53,43 @@ export default function EnquiryForm() {
     });
   };
   const onEnquiryApiHandler = () => {
-    const req = {
-      ...enquiryFormData,
-      pincode: Number(enquiryFormData.pincode),
-      categoryId,
-    };
+    const re = /^\(?(\d{3})\)?[- ]?(\d{3})[- ]?(\d{4})$/;
+    const validRegex =
+      /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
-    axios.post(`${apiUrl}/enquiry`, req).then((res) => {
-      const { status, message, data } = res.data;
-      if (status === 201) {
-        toast.success("Enquiry sent successfully");
-        navigate(`/`);
-      } else {
-        toast.warn(message);
-      }
-    });
+    if (
+      !enquiryFormData?.firstName ||
+      !enquiryFormData?.lastName ||
+      !enquiryFormData?.enquiry ||
+      !enquiryFormData?.pincode
+    ) {
+      toast.info("Please fill required field");
+    } else if (
+      !enquiryFormData?.mobileNo ||
+      !re.test(enquiryFormData?.mobileNo)
+    ) {
+      toast.info("Please provide valid contact number");
+    } else if (
+      !enquiryFormData?.email ||
+      !enquiryFormData?.email.match(validRegex)
+    ) {
+      toast.info("Please provide valid email");
+    } else {
+      const req = {
+        ...enquiryFormData,
+        pincode: Number(enquiryFormData?.pincode),
+        categoryId,
+      };
+      axios.post(`${apiUrl}/enquiry`, req).then((res) => {
+        const { status, message, data } = res.data;
+        if (status === 201) {
+          toast.success("Enquiry sent successfully");
+          navigate(`/`);
+        } else {
+          toast.warn(message);
+        }
+      });
+    }
   };
 
   return (
@@ -77,10 +101,22 @@ export default function EnquiryForm() {
           variant="outlined"
           sx={{ my: { xs: 3, md: 6 }, p: { xs: 2, md: 3 } }}
         >
+          <Button
+            size="small"
+            variant="outlined"
+            startIcon={<ArrowBackIcon />}
+            onClick={() => navigate(`/products/${location?.state}`)}
+            style={{
+              // marginTop: "50px",
+              display: "flex",
+              justifyContent: "left",
+            }}
+          >
+            Back{" "}
+          </Button>{" "}
           <Typography component="h1" variant="h4" align="center">
             Enquiry
           </Typography>
-
           <React.Fragment>
             <Grid container spacing={3}>
               <Grid item xs={12} sm={6}>
@@ -122,6 +158,7 @@ export default function EnquiryForm() {
                 <TextField
                   id="address2"
                   name="email"
+                  type={"email"}
                   onChange={onChangeHandler}
                   label="Email Address"
                   fullWidth
@@ -134,6 +171,7 @@ export default function EnquiryForm() {
                 <TextField
                   required
                   id="zip"
+                  type={"number"}
                   name="pincode"
                   label="Postal code"
                   onChange={onChangeHandler}

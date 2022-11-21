@@ -33,6 +33,7 @@ function AddCategory(props) {
             id="lastName"
             name="unit"
             label="Unit"
+            type={"number"}
             fullWidth
             autoComplete="family-name"
             variant="standard"
@@ -44,6 +45,7 @@ function AddCategory(props) {
             required
             id="lastName"
             name="ton"
+            type={"number"}
             label="Ton"
             fullWidth
             onChange={onCategoryHandler}
@@ -56,6 +58,7 @@ function AddCategory(props) {
             required
             id="lastName"
             name="amount"
+            type={"number"}
             label="Price"
             fullWidth
             autoComplete="family-name"

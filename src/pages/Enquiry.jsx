@@ -7,14 +7,25 @@ import TableContainer from "@mui/material/TableContainer";
 import TableHead from "@mui/material/TableHead";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
-import { Typography } from "@mui/material";
+import {
+  Button,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  FormControl,
+  Typography,
+} from "@mui/material";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { apiUrl } from "../components/config/apiConfig";
-
+import FilterListIcon from "@mui/icons-material/FilterList";
+import FilterDialog from "../components/FilterDialog";
+import DateRangePickerCus from "../components/DateRangePickerCus";
 const columns = [
-  { id: "name", label: "Name", minWidth: 170 },
-  { id: "mobileNo", label: "Contact", minWidth: 100 },
+  { id: "name", label: "Name" },
+  { id: "mobileNo", label: "Contact", minWidth: 170 },
   {
     id: "email",
     label: "Email",
@@ -57,6 +68,9 @@ export default function Enquiry() {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [rows, setRows] = React.useState([]);
+  const [enquiry, setEnquiry] = React.useState();
+  const [showFilter, setShowFilter] = React.useState(false);
+  const [filterBy, setFilterBy] = React.useState(1);
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -68,11 +82,11 @@ export default function Enquiry() {
 
   React.useEffect(() => {
     getAllEnquiry();
-  }, []);
+  }, [page, rowsPerPage]);
 
   const getAllEnquiry = () => {
     axios
-      .get(`${apiUrl}/admin/enquiry/1/10`, {
+      .get(`${apiUrl}/admin/enquiry/${page + 1}/${rowsPerPage}`, {
         headers: {
           Authorization: token,
         },
@@ -80,8 +94,6 @@ export default function Enquiry() {
       .then((res) => {
         const { status, message, data } = res.data;
         if (status === 200) {
-          console.log(data);
-
           const res = data?.enquires?.content?.map((e) => {
             return {
               ...e,
@@ -91,16 +103,75 @@ export default function Enquiry() {
           });
 
           setRows(res);
+          setEnquiry(data?.enquires);
         } else {
           toast.warn(message);
         }
       });
   };
 
+  const onChangeStatus = (e, eqId) => {
+    const stat = e === "COMPLETED" ? "PENDING" : "COMPLETED";
+    axios
+      .put(`${apiUrl}/admin/enquiry/${eqId}/${stat}`, {
+        headers: {
+          Authorization: token,
+        },
+      })
+      .then((res) => {
+        const { status, message, data } = res.data;
+        if (status === 200) {
+          toast.success(message);
+          getAllEnquiry();
+        } else {
+          toast.warn(message);
+        }
+      });
+  };
   return (
     <Paper sx={{ width: "100%", overflow: "hidden", marginTop: "50px" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "right",
+          padding: "10px",
+        }}
+      ></div>
       <Typography variant="h6">Enquiry List</Typography>
-      <TableContainer sx={{ maxHeight: 440 }}>
+      {/* <div
+        style={{
+          marginTop: "20px",
+          // width: "300px",
+        }}
+      >
+        {filterBy === "Contact" ? (
+          <TextField
+            id="standard-basic"
+            label="Mobile Number"
+            variant="outlined"
+            size="small"
+          />
+        ) : filterBy === "Status" ? (
+          <>
+            <InputLabel id="demo-simple-select-standard-label">
+              Status
+            </InputLabel>
+            <Select
+              labelId="demo-simple-select-standard-label"
+              id="demo-simple-select-standard"
+              // value={filterBy}
+              // onChange={(e) => setFilterBy(e.target.value)}
+              label="Age"
+            >
+              <MenuItem value={1}>Pending</MenuItem>
+              <MenuItem value={2}>Completed</MenuItem>
+            </Select>
+          </>
+        ) : (
+          <DateRangePickerCus />
+        )}
+      </div> */}
+      <TableContainer>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
@@ -111,36 +182,110 @@ export default function Enquiry() {
                   style={{ minWidth: column.minWidth }}
                 >
                   {column.label}
+
+                  {column.label === "DateTime" ||
+                  column.label === "Contact" ||
+                  column.label === "Status" ? (
+                    <IconButton onClick={() => setFilterBy(column.label)}>
+                      <FilterListIcon />
+                    </IconButton>
+                  ) : (
+                    ""
+                  )}
                 </TableCell>
               ))}
             </TableRow>
           </TableHead>
-          <TableBody>
-            {rows
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row) => {
-                return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
-                    {columns.map((column) => {
-                      const value = row[column.id];
-                      return (
-                        <TableCell key={column.id} align={column.align}>
-                          {column.format && typeof value === "number"
-                            ? column.format(value)
-                            : value}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                );
-              })}
-          </TableBody>
+          {rows == "" || rows == undefined || rows == null ? (
+            <TableBody>
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  style={{ textAlign: "center" }}
+                >
+                  <img
+                    style={{
+                      width: "200px",
+                    }}
+                    src="/assets/norecord.png"
+                  ></img>
+                  <div>No enquiry found !</div>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          ) : (
+            <TableBody>
+              {rows
+                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                .map((row) => {
+                  return (
+                    <TableRow
+                      hover
+                      role="checkbox"
+                      tabIndex={-1}
+                      key={row.code}
+                    >
+                      {columns.map((column) => {
+                        const value = row[column.id];
+                        return (
+                          <TableCell key={column.id} align={column.align}>
+                            {column.format && typeof value === "number" ? (
+                              column.format(value)
+                            ) : column.id === "status" ? (
+                              <FormControl
+                                variant="standard"
+                                sx={{ m: 1, minWidth: 120 }}
+                              >
+                                <Select
+                                  labelId="demo-simple-select-standard-label"
+                                  id="demo-simple-select-standard"
+                                  value={value}
+                                  style={{
+                                    color:
+                                      value === "PENDING" ? "orange" : "green",
+                                  }}
+                                  onChange={(e) =>
+                                    onChangeStatus(e.target.value, row.id)
+                                  }
+                                >
+                                  <MenuItem value="PENDING">PENDING</MenuItem>
+                                  <MenuItem value="COMPLETED">
+                                    COMPLETED
+                                  </MenuItem>
+                                </Select>
+                              </FormControl>
+                            ) : (
+                              value
+                            )}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  );
+                })}
+            </TableBody>
+          )}
         </Table>
       </TableContainer>
       <TablePagination
-        rowsPerPageOptions={[5, 10, 25, 100]}
         component="div"
-        count={rows.length}
+        rowsPerPageOptions={[
+          5,
+          10,
+          15,
+          30,
+          50,
+          {
+            value:
+              rows === undefined
+                ? 5
+                : rows.length === 0
+                ? 6
+                : enquiry?.totalElements,
+            label: "All",
+          },
+        ]}
+        count={enquiry?.totalElements}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}

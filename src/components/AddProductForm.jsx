@@ -15,6 +15,7 @@ function AddProductForm(props) {
             onChange={(e) => {
               setFile(e.target.files[0]);
             }}
+            accept="image/*"
           />
           {/* <Fileupload /> */}
           {/* </Button> */}

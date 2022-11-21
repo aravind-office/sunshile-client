@@ -13,43 +13,19 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 
-import useMediaQuery from "@mui/material/useMediaQuery";
 function SubCategoriesDetails(props) {
   const navigate = useNavigate();
   const { name, amount, image, categoryId, productId, ton, unit } = props?.data;
   const { open, onClose } = props;
-  const theme = useTheme();
-  // const fullScreen = useMediaQuery(theme.breakpoints.down("md"));
 
   const [unitCal, setUnit] = React.useState(unit);
 
   const [tonCal, setTon] = React.useState(ton);
 
   React.useEffect(() => {
-    if (!unitCal) {
-      setUnit(unit);
-    }
-
-    if (!tonCal) {
-      setTon(ton);
-    }
-  }, [props.data]);
-
-  const amountCal = () => {
-    // unit 2 = 380
-    if (unit === unitCal) {
-      return amount;
-    } else {
-    }
-    if (ton === tonCal) {
-      return amount;
-    }
-  };
-  // 1 2=10
-  // unit-2
-
-  // ton :4
-  // 1.5 3 = 25
+    setUnit(unit);
+    setTon(ton);
+  }, [props]);
 
   return (
     <div>
@@ -124,11 +100,14 @@ function SubCategoriesDetails(props) {
                     id="lastName"
                     name="unit"
                     label="Unit"
+                    type={"number"}
                     fullWidth
                     autoComplete="family-name"
                     variant="standard"
-                    value={unitCal}
-                    // onChange={onCategoryHandler}
+                    // 10 ton 1 unit => 9ton => 0.90unit
+                    // ton/ton *
+                    value={(tonCal / ton) * unitCal}
+                    onChange={(e) => setUnit(e.target.value)}
                   />
                 </Grid>{" "}
                 <Grid
@@ -142,10 +121,12 @@ function SubCategoriesDetails(props) {
                     id="lastName"
                     name="ton"
                     label="Ton"
+                    type={"number"}
                     fullWidth
-                    value={tonCal}
+                    value={unitCal * tonCal}
                     autoComplete="family-name"
                     variant="standard"
+                    onChange={(e) => setTon(e.target.value)}
                   />
                 </Grid>
               </Grid>
@@ -161,7 +142,7 @@ function SubCategoriesDetails(props) {
                     color: "green",
                   }}
                 >
-                  Amount : Rs.{amount}
+                  Amount : Rs.{((tonCal / ton) * unitCal * amount).toFixed(2)}
                 </Typography>
               </Grid>
             </div>
@@ -172,7 +153,11 @@ function SubCategoriesDetails(props) {
             close
           </Button>
           <Button
-            onClick={() => navigate(`/enquiry-form/${categoryId}`)}
+            onClick={() =>
+              navigate(`/enquiry-form/${categoryId}`, {
+                state: productId,
+              })
+            }
             autoFocus
           >
             Enquiry Now
