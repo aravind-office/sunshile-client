@@ -1,9 +1,9 @@
 import { Button, Grid, TextField } from "@mui/material";
 import React from "react";
-import Fileupload from "./fileupload/Fileupload";
 
 function AddCategory(props) {
-  const { setFile, onCategoryHandler } = props;
+  const { setFile, onCategoryHandler, value } = props;
+
   return (
     <div>
       <Grid container spacing={3}>
@@ -20,6 +20,7 @@ function AddCategory(props) {
             required
             id="lastName"
             name="name"
+            value={value?.name}
             label="Product Name"
             fullWidth
             autoComplete="family-name"
@@ -33,6 +34,7 @@ function AddCategory(props) {
             id="lastName"
             name="unit"
             label="Unit"
+            value={value?.unit}
             type={"number"}
             fullWidth
             autoComplete="family-name"
@@ -45,6 +47,7 @@ function AddCategory(props) {
             required
             id="lastName"
             name="ton"
+            value={value?.ton}
             type={"number"}
             label="Ton"
             fullWidth
@@ -59,6 +62,7 @@ function AddCategory(props) {
             id="lastName"
             name="amount"
             type={"number"}
+            value={value?.amount}
             label="Price"
             fullWidth
             autoComplete="family-name"

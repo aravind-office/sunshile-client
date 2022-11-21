@@ -20,6 +20,8 @@ import { apiUrl } from "../components/config/apiConfig";
 import { toast } from "react-toastify";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import DeleteIcon from "@mui/icons-material/Delete";
+import DeleteDialog from "../components/DeleteDialog";
+import EditIcon from "@mui/icons-material/Edit";
 export default function SubCategories() {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
@@ -62,6 +64,12 @@ export default function SubCategories() {
 
   const [file, setFile] = React.useState();
   const [categoryData, setCategoryData] = React.useState();
+  const [showDelete, setShowDelete] = React.useState(false);
+  const [selectedProduct, setSelectedProduct] = React.useState(null);
+  const [updateCatData, setUpdateCatData] = React.useState({
+    status: false,
+    data: {},
+  });
 
   const onCategoryHandler = (e) => {
     setCategoryData((prevState) => {
@@ -90,7 +98,11 @@ export default function SubCategories() {
           axios.post(`${apiUrl}/file`, formData).then((res) => {
             const { status, message, data } = res.data;
             if (status === 201) {
-              addCategoryApi(data?.imageId);
+              if (updateCatData?.status) {
+                updateCategoryApi(data?.imageId, updateCatData?.data);
+              } else {
+                addCategoryApi(data?.imageId);
+              }
             } else {
               toast.warn(message);
             }
@@ -147,11 +159,51 @@ export default function SubCategories() {
     }
   };
 
-  const onDeleteCategoryApi = (pId) => {
+  const updateCategoryApi = (imageId, obj) => {
+    if (
+      !categoryData?.name ||
+      !categoryData?.unit ||
+      !categoryData?.ton ||
+      !categoryData?.amount
+    ) {
+      toast.info("please fill required field");
+    } else {
+      axios
+        .post(
+          `${apiUrl}/admin/category`,
+          {
+            categoryId: obj?.categoryId,
+            productId: obj?.productId,
+            imageId: imageId,
+            name: categoryData?.name,
+            unit: Number(categoryData?.unit),
+            ton: Number(categoryData?.ton),
+            amount: Number(categoryData?.amount),
+          },
+          {
+            headers: {
+              Authorization: token,
+            },
+          }
+        )
+        .then((res) => {
+          const { status, message, data } = res.data;
+          if (status === 201) {
+            getProductCategoryById();
+            toast.success(message);
+            onCloseHandler();
+          } else {
+            toast.warn(message);
+          }
+        });
+    }
+  };
+
+  const onDeleteCategoryApi = () => {
     const token = localStorage.getItem("token");
     if (token) {
       axios
-        .delete(`${apiUrl}/admin/category/${pId}`, {
+        .delete(`${apiUrl}/admin/category/${selectedProduct}`, {
           headers: {
             Authorization: token,
           },
@@ -161,6 +213,7 @@ export default function SubCategories() {
           if (status === 200) {
             toast.success(message);
             getProductCategoryById();
+            setShowDelete(false);
           } else {
             toast.warn(message);
           }
@@ -195,7 +248,13 @@ export default function SubCategories() {
             <Button
               size="small"
               variant="contained"
-              onClick={() => setShowAddProduct(true)}
+              onClick={() => {
+                setShowAddProduct(true);
+                setUpdateCatData({
+                  status: false,
+                  data: {},
+                });
+              }}
             >
               Add Category
             </Button>
@@ -217,7 +276,6 @@ export default function SubCategories() {
             <div>{product?.name}</div>
           </Grid>
           <Grid item xs={8} sm={8} md={8}>
-            {console.log(category.length)}
             {category.length === 0 ? (
               <>
                 {" "}
@@ -299,20 +357,26 @@ export default function SubCategories() {
                                   style={{ color: "red" }}
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    onDeleteCategoryApi(card?.categoryId);
+                                    // onDeleteCategoryApi(card?.categoryId);
+                                    setShowDelete(true);
+                                    setSelectedProduct(card?.categoryId);
                                   }}
                                 >
                                   <DeleteIcon />
                                 </IconButton>
-                                {/* <IconButton
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPname(card?.name);
-                          setShowAddProduct(true);
-                        }}
-                      >
-                        <EditIcon />
-                      </IconButton> */}
+                                <IconButton
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowAddProduct(true);
+                                    setCategoryData(card);
+                                    setUpdateCatData({
+                                      status: true,
+                                      data: card,
+                                    });
+                                  }}
+                                >
+                                  <EditIcon />
+                                </IconButton>
                               </Stack>
                             </CardActions>
                           ) : (
@@ -348,6 +412,15 @@ export default function SubCategories() {
                     ))}{" "}
               </Grid>
             )}
+
+            {showDelete && (
+              <DeleteDialog
+                open={showDelete}
+                onClose={() => setShowDelete(false)}
+                content={"Are you sure you want to delete your category"}
+                submit={() => onDeleteCategoryApi()}
+              />
+            )}
             <Pagination
               style={{
                 display: "flex",
@@ -371,11 +444,19 @@ export default function SubCategories() {
       )}
       <ResponsiveDialog
         open={showAddProduct}
-        onClose={() => setShowAddProduct(false)}
-        title="Add Category"
+        onClose={() => {
+          setShowAddProduct(false);
+          setCategoryData({});
+          setUpdateCatData({
+            status: false,
+            data: {},
+          });
+        }}
+        title={updateCatData?.status ? "Update Category" : "Add Category"}
         content={
           <AddCategory
             setFile={setFile}
+            value={categoryData}
             onCategoryHandler={onCategoryHandler}
           />
         }

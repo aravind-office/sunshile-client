@@ -24,6 +24,7 @@ import { apiUrl } from "./config/apiConfig";
 
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
+import DeleteDialog from "./DeleteDialog";
 function Copyright() {
   return (
     <Typography variant="body2" color="text.secondary" align="center">
@@ -56,7 +57,9 @@ export default function Product() {
 
   const [file, setFile] = React.useState();
   const [pName, setPname] = React.useState();
-
+  const [showDelete, setShowDelete] = React.useState(false);
+  const [selectedProduct, setSelectedProduct] = React.useState(null);
+  const [update, setUpdate] = React.useState({ status: false, data: {} });
   React.useEffect(() => {
     getAllProduct();
   }, []);
@@ -79,7 +82,11 @@ export default function Product() {
           axios.post(`${apiUrl}/file`, formData).then((res) => {
             const { status, message, data } = res.data;
             if (status === 201) {
-              addProductApi(data?.imageId);
+              if (update?.status) {
+                updateProductApi(data?.imageId, update?.data);
+              } else {
+                addProductApi(data?.imageId);
+              }
             } else {
               toast.warn(message);
             }
@@ -118,6 +125,34 @@ export default function Product() {
       });
   };
 
+  const updateProductApi = (imageId, obj) => {
+    axios
+      .put(
+        `${apiUrl}/admin/product`,
+        {
+          id: obj?.id,
+          name: pName,
+          imageId: imageId,
+        },
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      )
+      .then((res) => {
+        const { status, message, data } = res.data;
+        if (status === 201) {
+          getAllProduct();
+          toast.success(message);
+          onCloseHandler();
+          navigate(`products/${data?.product?.id}`);
+        } else {
+          toast.warn(message);
+        }
+      });
+  };
+
   const getAllProduct = () => {
     axios.get(`${apiUrl}/product`).then((res) => {
       const { status, message, data } = res.data;
@@ -130,16 +165,17 @@ export default function Product() {
   };
 
   const onCloseHandler = () => {
+    setUpdate({ status: false, data: {} });
     setShowAddProduct(false);
     setFile("");
     setPname("");
   };
 
-  const onDeleteProdApi = (pId) => {
+  const onDeleteProdApi = () => {
     const token = localStorage.getItem("token");
     if (token) {
       axios
-        .delete(`${apiUrl}/admin/product/${pId}`, {
+        .delete(`${apiUrl}/admin/product/${selectedProduct}`, {
           headers: {
             Authorization: token,
           },
@@ -148,6 +184,7 @@ export default function Product() {
           const { status, message, data } = res.data;
           if (status === 200) {
             toast.success(message);
+            setShowDelete(false);
             getAllProduct();
           } else {
             toast.warn(message);
@@ -248,20 +285,24 @@ export default function Product() {
                             style={{ color: "red" }}
                             onClick={(e) => {
                               e.stopPropagation();
-                              onDeleteProdApi(card?.id);
+                              setShowDelete(true);
+                              setSelectedProduct(card?.id);
+
+                              // onDeleteProdApi(card?.id);
                             }}
                           >
                             <DeleteIcon />
                           </IconButton>
-                          {/* <IconButton
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPname(card?.name);
-                          setShowAddProduct(true);
-                        }}
-                      >
-                        <EditIcon />
-                      </IconButton> */}
+                          <IconButton
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setPname(card?.name);
+                              setShowAddProduct(true);
+                              setUpdate({ status: true, data: card });
+                            }}
+                          >
+                            <EditIcon />
+                          </IconButton>
                         </Stack>
                       </CardActions>
                     )}
@@ -270,6 +311,14 @@ export default function Product() {
               ))}
           </Grid>
         </>
+      )}
+      {showDelete && (
+        <DeleteDialog
+          open={showDelete}
+          onClose={() => setShowDelete(false)}
+          content={"Are you sure you want to delete your product"}
+          submit={() => onDeleteProdApi()}
+        />
       )}
 
       <Pagination
@@ -305,7 +354,7 @@ export default function Product() {
       <ResponsiveDialog
         open={showAddProduct}
         onClose={onCloseHandler}
-        title="Add Product"
+        title={update?.status ? "Update Product" : "Add Product"}
         content={
           <AddProductForm setFile={setFile} setPname={setPname} pName={pName} />
         }

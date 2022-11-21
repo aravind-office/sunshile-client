@@ -18,11 +18,13 @@ import {
   Typography,
 } from "@mui/material";
 import axios from "axios";
+import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import { toast } from "react-toastify";
 import { apiUrl } from "../components/config/apiConfig";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import FilterDialog from "../components/FilterDialog";
 import DateRangePickerCus from "../components/DateRangePickerCus";
+import ShowCategories from "../components/ShowCategories";
 const columns = [
   { id: "name", label: "Name" },
   { id: "mobileNo", label: "Contact", minWidth: 170 },
@@ -61,6 +63,10 @@ const columns = [
     align: "center",
     // format: (value) => value.toFixed(2),
   },
+  {
+    id: "category",
+    label: "Category",
+  },
 ];
 
 export default function Enquiry() {
@@ -72,6 +78,11 @@ export default function Enquiry() {
   const [showFilter, setShowFilter] = React.useState(false);
   const [filterBy, setFilterBy] = React.useState(1);
   const [filterOpn, setFilterOpn] = React.useState(null);
+  const [showCategory, setShowCategory] = React.useState({
+    status: false,
+    data: {},
+  });
+
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -261,6 +272,14 @@ export default function Enquiry() {
                                 <MenuItem value="COMPLETED">COMPLETED</MenuItem>
                               </Select>
                             </FormControl>
+                          ) : column.id === "category" ? (
+                            <IconButton
+                              onClick={() =>
+                                setShowCategory({ status: true, data: row })
+                              }
+                            >
+                              <RemoveRedEyeIcon />
+                            </IconButton>
                           ) : (
                             value
                           )}
@@ -274,6 +293,14 @@ export default function Enquiry() {
           )}
         </Table>
       </TableContainer>
+      {console.log(showCategory?.data)}
+      {showCategory.status && (
+        <ShowCategories
+          open={showCategory.status}
+          data={showCategory?.data}
+          onClose={() => setShowCategory({ status: false, data: {} })}
+        />
+      )}
       <TablePagination
         component="div"
         rowsPerPageOptions={[

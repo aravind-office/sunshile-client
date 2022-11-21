@@ -12,19 +12,10 @@ import {
 import React from "react";
 import { useNavigate } from "react-router-dom";
 
-function SubCategoriesDetails(props) {
+function ShowCategories(props) {
   const navigate = useNavigate();
-  const { name, amount, image, categoryId, productId, ton, unit } = props?.data;
+  const { name, amount, picture, ton, unit } = props?.data?.category;
   const { open, onClose } = props;
-
-  const [unitCal, setUnit] = React.useState(unit);
-
-  const [tonCal, setTon] = React.useState(ton);
-
-  React.useEffect(() => {
-    setUnit(unit);
-    setTon(ton);
-  }, [props]);
 
   return (
     <div>
@@ -56,7 +47,7 @@ function SubCategoriesDetails(props) {
                   objectFit: "content",
                   // flex: 1,
                 }}
-                src={image?.previewUrl}
+                src={picture?.previewUrl}
               />
             </div>
             <div
@@ -94,20 +85,39 @@ function SubCategoriesDetails(props) {
                   sm={12}
                   style={{ marginBottom: "0px", paddingTop: "20px" }}
                 >
-                  <TextField
-                    required
-                    id="lastName"
-                    name="unit"
-                    label="Unit"
-                    type={"number"}
-                    fullWidth
-                    autoComplete="family-name"
-                    variant="standard"
-                    // 10 ton 1 unit => 9ton => 0.90unit
-                    // ton/ton *
-                    value={(tonCal / ton) * unitCal}
-                    onChange={(e) => setUnit(e.target.value)}
-                  />
+                  <Typography
+                    gutterBottom
+                    style={{ marginBottom: "0px", paddingTop: "0px" }}
+                  >
+                    <span
+                      style={{
+                        color: "blue",
+                      }}
+                    >
+                      Actual
+                    </span>{" "}
+                    |{" "}
+                    <span
+                      style={{
+                        color: "red",
+                      }}
+                    >
+                      Enquiry
+                    </span>
+                  </Typography>
+                </Grid>
+                <Grid
+                  item
+                  xs={12}
+                  sm={12}
+                  style={{ marginBottom: "0px", paddingTop: "20px" }}
+                >
+                  <Typography
+                    gutterBottom
+                    style={{ marginBottom: "0px", paddingTop: "0px" }}
+                  >
+                    Unit: {unit} | {props?.data?.unit}
+                  </Typography>
                 </Grid>{" "}
                 <Grid
                   item
@@ -115,18 +125,12 @@ function SubCategoriesDetails(props) {
                   sm={12}
                   style={{ marginBottom: "0px", paddingTop: "20px" }}
                 >
-                  <TextField
-                    required
-                    id="lastName"
-                    name="ton"
-                    label="Ton"
-                    type={"number"}
-                    fullWidth
-                    value={unitCal * tonCal}
-                    autoComplete="family-name"
-                    variant="standard"
-                    onChange={(e) => setTon(e.target.value)}
-                  />
+                  <Typography
+                    gutterBottom
+                    style={{ marginBottom: "0px", paddingTop: "0px" }}
+                  >
+                    Ton: {ton} | {props?.data?.ton}
+                  </Typography>
                 </Grid>
               </Grid>
               {/* {amount} <br /> */}
@@ -141,7 +145,7 @@ function SubCategoriesDetails(props) {
                     color: "green",
                   }}
                 >
-                  Amount : Rs.{((tonCal / ton) * unitCal * amount).toFixed(2)}
+                  Amount : Rs.{amount.toFixed(2)} | {props?.data?.amount}
                 </Typography>
               </Grid>
             </div>
@@ -151,20 +155,10 @@ function SubCategoriesDetails(props) {
           <Button autoFocus onClick={onClose}>
             close
           </Button>
-          <Button
-            onClick={() =>
-              navigate(`/enquiry-form/${categoryId}`, {
-                state: JSON.stringify({ amount, ton, unit, productId }),
-              })
-            }
-            autoFocus
-          >
-            Enquiry Now
-          </Button>
         </DialogActions>
       </Dialog>
     </div>
   );
 }
 
-export default SubCategoriesDetails;
+export default ShowCategories;

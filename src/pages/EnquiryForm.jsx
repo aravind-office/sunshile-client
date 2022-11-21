@@ -41,7 +41,8 @@ export default function EnquiryForm() {
   const navigate = useNavigate();
   const { categoryId } = useParams();
   const location = useLocation();
-  console.log(location, "state");
+  const data = JSON.parse(location?.state);
+  console.log(data, "state");
   const [enquiryFormData, setEnquiryFormData] = React.useState();
 
   const onChangeHandler = (e) => {
@@ -79,6 +80,9 @@ export default function EnquiryForm() {
         ...enquiryFormData,
         pincode: Number(enquiryFormData?.pincode),
         categoryId,
+        unit: data?.unit,
+        ton: data?.ton,
+        amount: data?.amount,
       };
       axios.post(`${apiUrl}/enquiry`, req).then((res) => {
         const { status, message, data } = res.data;
@@ -105,7 +109,7 @@ export default function EnquiryForm() {
             size="small"
             variant="outlined"
             startIcon={<ArrowBackIcon />}
-            onClick={() => navigate(`/products/${location?.state}`)}
+            onClick={() => navigate(`/products/${data?.productId}`)}
             style={{
               // marginTop: "50px",
               display: "flex",
@@ -124,6 +128,7 @@ export default function EnquiryForm() {
                   required
                   id="firstName"
                   name="firstName"
+                  value={enquiryFormData?.firstName}
                   label="First name"
                   fullWidth
                   onChange={onChangeHandler}
@@ -135,6 +140,7 @@ export default function EnquiryForm() {
                 <TextField
                   required
                   id="lastName"
+                  value={enquiryFormData?.lastName}
                   name="lastName"
                   label="Last name"
                   onChange={onChangeHandler}
@@ -147,6 +153,7 @@ export default function EnquiryForm() {
                 <TextField
                   required
                   id="address1"
+                  value={enquiryFormData?.mobileNo}
                   name="mobileNo"
                   label="Contact Number"
                   onChange={onChangeHandler}
@@ -157,6 +164,7 @@ export default function EnquiryForm() {
               <Grid item xs={12}>
                 <TextField
                   id="address2"
+                  value={enquiryFormData?.email}
                   name="email"
                   type={"email"}
                   onChange={onChangeHandler}
@@ -172,6 +180,7 @@ export default function EnquiryForm() {
                   required
                   id="zip"
                   type={"number"}
+                  value={enquiryFormData?.pincode}
                   name="pincode"
                   label="Postal code"
                   onChange={onChangeHandler}
@@ -184,6 +193,7 @@ export default function EnquiryForm() {
                 <TextField
                   id="outlined-multiline-static"
                   label="Enquiry"
+                  value={enquiryFormData?.enquiry}
                   name="enquiry"
                   onChange={onChangeHandler}
                   fullWidth
