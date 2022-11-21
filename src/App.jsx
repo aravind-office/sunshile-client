@@ -17,6 +17,6 @@ export default App;
 // update product / cat => completed
 // enquiry add modify=> completed
 // enquiry Category show => completed
+// ton input bug=>completed
 
-// ton input bug
 // seacrch option => table

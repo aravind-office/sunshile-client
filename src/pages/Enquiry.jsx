@@ -98,7 +98,7 @@ export default function Enquiry() {
 
   const getAllEnquiry = () => {
     axios
-      .get(`${apiUrl}/admin/enquiry/${page + 1}/${rowsPerPage}?${filterOpn}`, {
+      .get(`${apiUrl}/admin/enquiry/${page + 1}/${rowsPerPage}`, {
         headers: {
           Authorization: token,
         },
@@ -293,7 +293,6 @@ export default function Enquiry() {
           )}
         </Table>
       </TableContainer>
-      {console.log(showCategory?.data)}
       {showCategory.status && (
         <ShowCategories
           open={showCategory.status}

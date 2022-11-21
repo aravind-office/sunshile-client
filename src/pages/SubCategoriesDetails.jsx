@@ -122,7 +122,7 @@ function SubCategoriesDetails(props) {
                     label="Ton"
                     type={"number"}
                     fullWidth
-                    value={unitCal * tonCal}
+                    value={(unitCal / unit) * tonCal}
                     autoComplete="family-name"
                     variant="standard"
                     onChange={(e) => setTon(e.target.value)}
@@ -154,7 +154,12 @@ function SubCategoriesDetails(props) {
           <Button
             onClick={() =>
               navigate(`/enquiry-form/${categoryId}`, {
-                state: JSON.stringify({ amount, ton, unit, productId }),
+                state: JSON.stringify({
+                  amount: ((tonCal / ton) * unitCal * amount).toFixed(2),
+                  ton: (unitCal / unit) * tonCal,
+                  unit: (tonCal / ton) * unitCal,
+                  productId,
+                }),
               })
             }
             autoFocus
