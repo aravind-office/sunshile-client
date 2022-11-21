@@ -70,16 +70,21 @@ export default function Product() {
         file?.type === "image/jpg" ||
         file?.type === "image/png"
       ) {
-        const formData = new FormData();
-        file ? formData.append("file", file) : "";
-        axios.post(`${apiUrl}/file`, formData).then((res) => {
-          const { status, message, data } = res.data;
-          if (status === 201) {
-            addProductApi(data?.imageId);
-          } else {
-            toast.warn(message);
-          }
-        });
+        const fileCal = Math.round(file?.size / 1024 / 1024);
+        if (fileCal >= 10) {
+          toast.info(`File size must be less than 10mb`);
+        } else {
+          const formData = new FormData();
+          file ? formData.append("file", file) : "";
+          axios.post(`${apiUrl}/file`, formData).then((res) => {
+            const { status, message, data } = res.data;
+            if (status === 201) {
+              addProductApi(data?.imageId);
+            } else {
+              toast.warn(message);
+            }
+          });
+        }
       } else {
         toast.warn("Please you can upload file type .jpeg, .jpg, .png only.");
       }

@@ -111,13 +111,17 @@ export default function Enquiry() {
   };
 
   const onChangeStatus = (e, eqId) => {
-    const stat = e === "COMPLETED" ? "PENDING" : "COMPLETED";
+    // const stat = e === "COMPLETED" ? "PENDING" : "COMPLETED";
     axios
-      .put(`${apiUrl}/admin/enquiry/${eqId}/${stat}`, {
-        headers: {
-          Authorization: token,
-        },
-      })
+      .put(
+        `${apiUrl}/admin/enquiry/${eqId}/${e}`,
+        {},
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      )
       .then((res) => {
         const { status, message, data } = res.data;
         if (status === 200) {
@@ -215,54 +219,45 @@ export default function Enquiry() {
             </TableBody>
           ) : (
             <TableBody>
-              {rows
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row) => {
-                  return (
-                    <TableRow
-                      hover
-                      role="checkbox"
-                      tabIndex={-1}
-                      key={row.code}
-                    >
-                      {columns.map((column) => {
-                        const value = row[column.id];
-                        return (
-                          <TableCell key={column.id} align={column.align}>
-                            {column.format && typeof value === "number" ? (
-                              column.format(value)
-                            ) : column.id === "status" ? (
-                              <FormControl
-                                variant="standard"
-                                sx={{ m: 1, minWidth: 120 }}
+              {rows.map((row) => {
+                return (
+                  <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
+                    {columns.map((column) => {
+                      const value = row[column.id];
+                      return (
+                        <TableCell key={column.id} align={column.align}>
+                          {column.format && typeof value === "number" ? (
+                            column.format(value)
+                          ) : column.id === "status" ? (
+                            <FormControl
+                              variant="standard"
+                              sx={{ m: 1, minWidth: 120 }}
+                            >
+                              <Select
+                                labelId="demo-simple-select-standard-label"
+                                id="demo-simple-select-standard"
+                                value={value}
+                                style={{
+                                  color:
+                                    value === "PENDING" ? "orange" : "green",
+                                }}
+                                onChange={(e) =>
+                                  onChangeStatus(e.target.value, row.id)
+                                }
                               >
-                                <Select
-                                  labelId="demo-simple-select-standard-label"
-                                  id="demo-simple-select-standard"
-                                  value={value}
-                                  style={{
-                                    color:
-                                      value === "PENDING" ? "orange" : "green",
-                                  }}
-                                  onChange={(e) =>
-                                    onChangeStatus(e.target.value, row.id)
-                                  }
-                                >
-                                  <MenuItem value="PENDING">PENDING</MenuItem>
-                                  <MenuItem value="COMPLETED">
-                                    COMPLETED
-                                  </MenuItem>
-                                </Select>
-                              </FormControl>
-                            ) : (
-                              value
-                            )}
-                          </TableCell>
-                        );
-                      })}
-                    </TableRow>
-                  );
-                })}
+                                <MenuItem value="PENDING">PENDING</MenuItem>
+                                <MenuItem value="COMPLETED">COMPLETED</MenuItem>
+                              </Select>
+                            </FormControl>
+                          ) : (
+                            value
+                          )}
+                        </TableCell>
+                      );
+                    })}
+                  </TableRow>
+                );
+              })}
             </TableBody>
           )}
         </Table>
