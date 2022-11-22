@@ -81,7 +81,12 @@ export default function SubCategories() {
   };
 
   const addCategoryHandler = () => {
-    if (!file) {
+    if (updateCatData?.status) {
+      updateCategoryApi(
+        updateCatData?.data?.image?.imageId,
+        updateCatData?.data
+      );
+    } else if (!file) {
       toast.info("file is required");
     } else if (
       file?.type === "image/jpeg" ||

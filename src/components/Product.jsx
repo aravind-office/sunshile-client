@@ -65,7 +65,9 @@ export default function Product() {
   }, []);
 
   const addProductHandler = () => {
-    if (!file || !pName) {
+    if (update?.status) {
+      updateProductApi(update?.data?.image?.imageId, update?.data);
+    } else if (!file || !pName) {
       toast.info("file / product name is required");
     } else {
       if (
@@ -82,11 +84,7 @@ export default function Product() {
           axios.post(`${apiUrl}/file`, formData).then((res) => {
             const { status, message, data } = res.data;
             if (status === 201) {
-              if (update?.status) {
-                updateProductApi(data?.imageId, update?.data);
-              } else {
-                addProductApi(data?.imageId);
-              }
+              addProductApi(data?.imageId);
             } else {
               toast.warn(message);
             }

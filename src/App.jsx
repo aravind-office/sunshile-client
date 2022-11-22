@@ -1,3 +1,4 @@
+import { Category } from "@mui/icons-material";
 import "./App.css";
 import Router from "./Router";
 
@@ -12,11 +13,8 @@ function App() {
 export default App;
 
 // sunshine
+// update/p/cat dont force to fill => completed
+// Categorypopup in enquiry ui align => completed
 
-// delete confirm ui => product=> completed
-// update product / cat => completed
-// enquiry add modify=> completed
-// enquiry Category show => completed
-// ton input bug=>completed
-
+// ton bug
 // seacrch option => table

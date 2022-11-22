@@ -11,9 +11,11 @@ import {
 
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import EnquiryCategoryPopCard from "./EnquiryCategoryPopCard";
 
 function ShowCategories(props) {
   const navigate = useNavigate();
+
   const { name, amount, picture, ton, unit } = props?.data?.category;
   const { open, onClose } = props;
 
@@ -70,83 +72,35 @@ function ShowCategories(props) {
                   sm={12}
                   style={{
                     paddingTop: "0px",
+                    display: "flex",
+                    justifyContent: "center",
                   }}
                 >
                   <Typography
                     gutterBottom
-                    style={{ marginBottom: "0px", paddingTop: "0px" }}
+                    component="div"
+                    variant="h5"
+                    style={{ marginBottom: "10px", paddingTop: "0px" }}
                   >
                     {name}
                   </Typography>
                 </Grid>
-                <Grid
-                  item
-                  xs={12}
-                  sm={12}
-                  style={{ marginBottom: "0px", paddingTop: "20px" }}
-                >
-                  <Typography
-                    gutterBottom
-                    style={{ marginBottom: "0px", paddingTop: "0px" }}
-                  >
-                    <span
-                      style={{
-                        color: "blue",
-                      }}
-                    >
-                      Actual
-                    </span>{" "}
-                    |{" "}
-                    <span
-                      style={{
-                        color: "red",
-                      }}
-                    >
-                      Enquiry
-                    </span>
-                  </Typography>
-                </Grid>
-                <Grid
-                  item
-                  xs={12}
-                  sm={12}
-                  style={{ marginBottom: "0px", paddingTop: "20px" }}
-                >
-                  <Typography
-                    gutterBottom
-                    style={{ marginBottom: "0px", paddingTop: "0px" }}
-                  >
-                    Unit: {unit} | {props?.data?.unit}
-                  </Typography>
-                </Grid>{" "}
-                <Grid
-                  item
-                  xs={12}
-                  sm={12}
-                  style={{ marginBottom: "0px", paddingTop: "20px" }}
-                >
-                  <Typography
-                    gutterBottom
-                    style={{ marginBottom: "0px", paddingTop: "0px" }}
-                  >
-                    Ton: {ton} | {props?.data?.ton}
-                  </Typography>
-                </Grid>
-              </Grid>
-              {/* {amount} <br /> */}
-              <Grid
-                item
-                xs={12}
-                sm={12}
-                style={{ marginBottom: "0px", paddingTop: "20px" }}
-              >
-                <Typography
-                  style={{
-                    color: "green",
-                  }}
-                >
-                  Amount : Rs.{amount.toFixed(2)} | {props?.data?.amount}
-                </Typography>
+                <EnquiryCategoryPopCard
+                  color="#1890ff"
+                  title="Actual"
+                  unit={unit}
+                  ton={ton}
+                  amount={amount.toFixed(2)}
+                />
+                <EnquiryCategoryPopCard
+                  color="red"
+                  title="Enquiry"
+                  unit={props?.data?.unit ? props?.data?.unit : 0}
+                  ton={props?.data?.ton ? props?.data?.ton : 0}
+                  amount={
+                    props?.data?.amount ? props?.data?.amount.toFixed(2) : 0
+                  }
+                />
               </Grid>
             </div>
           </div>
