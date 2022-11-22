@@ -13,8 +13,7 @@ function App() {
 export default App;
 
 // sunshine
-// update/p/cat dont force to fill => completed
-// Categorypopup in enquiry ui align => completed
 
 // ton bug
-// seacrch option => table
+// seacrch option => table=>all
+//export

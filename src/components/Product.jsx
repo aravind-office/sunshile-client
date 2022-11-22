@@ -25,18 +25,8 @@ import { apiUrl } from "./config/apiConfig";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteDialog from "./DeleteDialog";
-function Copyright() {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center">
-      {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{" "}
-      {new Date().getFullYear()}
-      {"."}
-    </Typography>
-  );
-}
+
+import Footer from "./Footer";
 
 const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -66,7 +56,33 @@ export default function Product() {
 
   const addProductHandler = () => {
     if (update?.status) {
-      updateProductApi(update?.data?.image?.imageId, update?.data);
+      if (!file) {
+        updateProductApi(update?.data?.image?.imageId, update?.data);
+      } else {
+        if (
+          file?.type === "image/jpeg" ||
+          file?.type === "image/jpg" ||
+          file?.type === "image/png"
+        ) {
+          const fileCal = Math.round(file?.size / 1024 / 1024);
+          if (fileCal >= 10) {
+            toast.info(`File size must be less than 10mb`);
+          } else {
+            const formData = new FormData();
+            file ? formData.append("file", file) : "";
+            axios.post(`${apiUrl}/file`, formData).then((res) => {
+              const { status, message, data } = res.data;
+              if (status === 201) {
+                updateProductApi(data?.imageId, update?.data);
+              } else {
+                toast.warn(message);
+              }
+            });
+          }
+        } else {
+          toast.warn("Please you can upload file type .jpeg, .jpg, .png only.");
+        }
+      }
     } else if (!file || !pName) {
       toast.info("file / product name is required");
     } else {
@@ -222,7 +238,11 @@ export default function Product() {
       </div>
       {/* End hero unit */}
       {cards.length === 0 ? (
-        <>
+        <div
+          style={{
+            textAlign: "center",
+          }}
+        >
           {" "}
           <img
             style={{
@@ -230,8 +250,9 @@ export default function Product() {
             }}
             src="/assets/norecord.png"
           ></img>
+          <br />
           <div>No product found . please add the product</div>
-        </>
+        </div>
       ) : (
         <>
           <Grid
@@ -252,6 +273,7 @@ export default function Product() {
                       marginRight: "10px",
                       display: "flex",
                       flexDirection: "column",
+                      textAlign: "center",
                       cursor: "pointer",
                     }}
                     onClick={() => navigate(`/products/${card.id}`)}
@@ -333,20 +355,7 @@ export default function Product() {
       {/* </Container> */}
       {/* </main> */}
       {/* Footer */}
-      <Box sx={{ bgcolor: "background.paper", p: 6 }} component="footer">
-        <Typography variant="h6" align="center" gutterBottom>
-          Footer
-        </Typography>
-        <Typography
-          variant="subtitle1"
-          align="center"
-          color="text.secondary"
-          component="p"
-        >
-          Something here to give the footer a purpose!
-        </Typography>
-        <Copyright />
-      </Box>
+      <Footer />
       {/* End footer */}
 
       <ResponsiveDialog

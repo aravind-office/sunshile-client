@@ -16,6 +16,10 @@ import {
   TextField,
   FormControl,
   Typography,
+  Card,
+  Grid,
+  InputAdornment,
+  OutlinedInput,
 } from "@mui/material";
 import axios from "axios";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
@@ -25,6 +29,9 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import FilterDialog from "../components/FilterDialog";
 import DateRangePickerCus from "../components/DateRangePickerCus";
 import ShowCategories from "../components/ShowCategories";
+import SearchIcon from "@mui/icons-material/Search";
+import ClearIcon from "@mui/icons-material/Clear";
+import DownloadIcon from "@mui/icons-material/Download";
 const columns = [
   { id: "name", label: "Name" },
   { id: "mobileNo", label: "Contact", minWidth: 170 },
@@ -94,15 +101,23 @@ export default function Enquiry() {
 
   React.useEffect(() => {
     getAllEnquiry();
-  }, [page, rowsPerPage]);
+  }, [page, rowsPerPage, filterOpn]);
 
   const getAllEnquiry = () => {
+    console.log(filterOpn);
+    const fStatus = filterOpn?.Status ? filterOpn?.Status : "all";
+    const fContact = filterOpn?.mobileNo ? filterOpn?.mobileNo : "all";
+    // &status=${fStatus}
     axios
-      .get(`${apiUrl}/admin/enquiry/${page + 1}/${rowsPerPage}`, {
-        headers: {
-          Authorization: token,
-        },
-      })
+      .get(
+        `${apiUrl}/admin/enquiry/${page + 1}/${rowsPerPage}?mobileNo=${fContact}
+     `,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      )
       .then((res) => {
         const { status, message, data } = res.data;
         if (status === 200) {
@@ -145,54 +160,210 @@ export default function Enquiry() {
       });
   };
 
-  const onSearchHandler = (filterByVal) => {
-    if (filterByVal === "status") {
-      setFilterOpn({ name: "status", val: "PENDING" });
+  const [mobileSearch, setMobileSearch] = React.useState("all");
+  const onSearchHandler = (filterByVal, value) => {
+    if (filterByVal === "Status") {
+      setFilterOpn((prevState) => {
+        return {
+          ...prevState,
+          [filterByVal]: value,
+          // filterOpn?.[filterByVal] === "PENDING" ? "COMPLETED" : "PENDING",
+        };
+      });
+    } else if (filterByVal === "mobileNo") {
+      const re = /^\(?(\d{3})\)?[- ]?(\d{3})[- ]?(\d{4})$/;
+      if (!re.test(mobileSearch)) {
+        toast.info("Please provide valid contact number");
+      } else {
+        console.log(mobileSearch);
+        setFilterOpn((prevState) => {
+          return {
+            ...prevState,
+            [filterByVal]: mobileSearch,
+            // filterOpn?.[filterByVal] === "PENDING" ? "COMPLETED" : "PENDING",
+          };
+        });
+      }
     }
   };
+
+  const onDownloadHandler = () => {
+    axios
+      .get(
+        `${apiUrl}/admin/enquiry/export/?from=20-11-2022&to=21-11-2022`,
+
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      )
+      .then((res) => {
+        location.href(res);
+        // const { status, message, data } = res.data;
+        // if (status === 200) {
+        //   toast.success(message);
+        //   console.log(data);
+        //   // getAllEnquiry();
+        // } else {
+        //   toast.warn(message);
+        // }
+      });
+  };
+
   return (
     <Paper sx={{ width: "100%", overflow: "hidden", marginTop: "50px" }}>
       <div
         style={{
           display: "flex",
-          justifyContent: "right",
+          justifyContent: "center",
           padding: "10px",
         }}
-      ></div>
-      <Typography variant="h6">Enquiry List</Typography>
-      {/* <div
+      >
+        <Typography variant="h6">Enquiry List</Typography>
+      </div>
+      <div
         style={{
-          marginTop: "20px",
-          // width: "300px",
+          display: "flex",
+          justifyContent: "right",
+          marginRight: "10px",
         }}
       >
-        {filterBy === "Contact" ? (
-          <TextField
-            id="standard-basic"
-            label="Mobile Number"
-            variant="outlined"
-            size="small"
-          />
-        ) : filterBy === "Status" ? (
-          <>
-            <InputLabel id="demo-simple-select-standard-label">
-              Status
-            </InputLabel>
-            <Select
-              labelId="demo-simple-select-standard-label"
-              id="demo-simple-select-standard"
-              // value={filterBy}
-              // onChange={(e) => setFilterBy(e.target.value)}
-              label="Age"
+        <Button
+          variant="contained"
+          onClick={() => onDownloadHandler()}
+          endIcon={<DownloadIcon />}
+        >
+          Download
+        </Button>
+      </div>
+
+      <Card>
+        <Grid
+          container
+          spacing={3}
+          style={{
+            marginTop: "10px",
+            padding: "10px 20px",
+          }}
+        >
+          <Grid item xs>
+            <FormControl fullWidth size="small" variant="outlined">
+              <InputLabel htmlFor="outlined-adornment-password">
+                Contact
+              </InputLabel>
+              <OutlinedInput
+                id="outlined-adornment-password"
+                type={"text"}
+                value={mobileSearch === "all" ? "" : mobileSearch}
+                onChange={(e) => setMobileSearch(e.target.value)}
+                endAdornment={
+                  <InputAdornment position="end">
+                    {mobileSearch !== "all" && (
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={() => {
+                          setFilterOpn((prevState) => {
+                            return {
+                              ...prevState,
+                              mobileNo: "all",
+                            };
+                          });
+                          setMobileSearch("all");
+                        }}
+                        onMouseDown={() => {
+                          setFilterOpn((prevState) => {
+                            return {
+                              ...prevState,
+                              mobileNo: "all",
+                            };
+                          });
+                          setMobileSearch("all");
+                        }}
+                        edge="end"
+                      >
+                        <ClearIcon />
+                      </IconButton>
+                    )}
+                  </InputAdornment>
+                }
+                label="Password"
+              />{" "}
+            </FormControl>
+          </Grid>
+          <Grid
+            item
+            xs={1}
+            style={{
+              marginRight: "10px",
+              marginLeft: "-15px",
+            }}
+          >
+            <Button
+              variant="contained"
+              onClick={() => onSearchHandler("mobileNo", "mobileNo")}
             >
-              <MenuItem value={1}>Pending</MenuItem>
-              <MenuItem value={2}>Completed</MenuItem>
-            </Select>
-          </>
-        ) : (
-          <DateRangePickerCus />
-        )}
-      </div> */}
+              Search
+            </Button>
+          </Grid>
+          <Grid item xs={2}>
+            <FormControl fullWidth size="small">
+              <InputLabel id="demo-simple-select-label">Status</InputLabel>
+              <Select
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={filterOpn?.Status}
+                label="Age"
+                // style={{
+                //   display: "flex",
+                //   justifyContent: "left",
+                // }}
+                onChange={(e) => onSearchHandler("Status", e.target.value)}
+              >
+                <MenuItem value={"all"}>All</MenuItem>
+                <MenuItem value={"PENDING"}>Pending</MenuItem>
+                <MenuItem value={"COMPLETED"}>Completed</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
+          <Grid item xs>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+              }}
+            >
+              {" "}
+              <span style={{ margin: "0px 8px 0px 10px" }}> From :</span>
+              <input
+                style={{
+                  height: "39px",
+                  borderRadius: "5px",
+                  border: "1px solid #c4c4c4",
+                  padding: "10px 15px",
+                }}
+                type="date"
+              />
+              <span style={{ margin: "0px 10px" }}> To :</span>
+              <input
+                style={{
+                  height: "39px",
+                  borderRadius: "5px",
+                  border: "1px solid #c4c4c4",
+                  padding: "10px 15px",
+                }}
+                type="date"
+              />
+            </div>
+          </Grid>
+          {/* <Grid item xs>
+            <Button variant="contained" endIcon={<FilterListIcon />}>
+              Filter
+            </Button>
+          </Grid> */}
+        </Grid>
+      </Card>
+
       <TableContainer>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
@@ -205,7 +376,7 @@ export default function Enquiry() {
                 >
                   {column.label}
 
-                  {column.label === "DateTime" ||
+                  {/* {column.label === "DateTime" ||
                   column.label === "Contact" ||
                   column.label === "Status" ? (
                     <IconButton
@@ -218,7 +389,7 @@ export default function Enquiry() {
                     </IconButton>
                   ) : (
                     ""
-                  )}
+                  )} */}
                 </TableCell>
               ))}
             </TableRow>
