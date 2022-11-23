@@ -82,9 +82,8 @@ export default function Enquiry() {
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const [rows, setRows] = React.useState([]);
   const [enquiry, setEnquiry] = React.useState();
-  const [showFilter, setShowFilter] = React.useState(false);
-  const [filterBy, setFilterBy] = React.useState(1);
   const [filterOpn, setFilterOpn] = React.useState(null);
+  const [searchOpn, setSearchOpn] = React.useState(null);
   const [showCategory, setShowCategory] = React.useState({
     status: false,
     data: {},
@@ -101,17 +100,35 @@ export default function Enquiry() {
 
   React.useEffect(() => {
     getAllEnquiry();
-  }, [page, rowsPerPage, filterOpn]);
+  }, [page, rowsPerPage, searchOpn]);
+
+const onDateFormatChange=(date)=>{
+  let objectDate = new Date(date);
+
+
+let day = objectDate.getDate();
+console.log(day); // 23
+
+let month = objectDate.getMonth();
+console.log(month + 1); // 8
+
+let year = objectDate.getFullYear();
+return day + "-" + month + "-" + year
+
+}
+const onSearchHandlerApi=()=>{
+  setSearchOpn(filterOpn);
+}
 
   const getAllEnquiry = () => {
-    console.log(filterOpn);
-    const fStatus = filterOpn?.Status ? filterOpn?.Status : "all";
-    const fContact = filterOpn?.mobileNo ? filterOpn?.mobileNo : "all";
-    // &status=${fStatus}
+
+    const fStatus = searchOpn?.Status ? searchOpn?.Status : "all";
+    const fContact = searchOpn?.mobileNo ? searchOpn?.mobileNo : "all";
+    const fFrom = searchOpn?.from ? onDateFormatChange(searchOpn?.from) : "all";
+    const fTo = searchOpn?.to ? onDateFormatChange(searchOpn?.to) : "all";
     axios
       .get(
-        `${apiUrl}/admin/enquiry/${page + 1}/${rowsPerPage}?mobileNo=${fContact}
-     `,
+        `${apiUrl}/admin/enquiry/${page + 1}/${rowsPerPage}?mobileNo=${fContact}&status=${fStatus}&from=${fFrom}&to=${fTo}`,
         {
           headers: {
             Authorization: token,
@@ -138,7 +155,6 @@ export default function Enquiry() {
   };
 
   const onChangeStatus = (e, eqId) => {
-    // const stat = e === "COMPLETED" ? "PENDING" : "COMPLETED";
     axios
       .put(
         `${apiUrl}/admin/enquiry/${eqId}/${e}`,
@@ -160,37 +176,48 @@ export default function Enquiry() {
       });
   };
 
-  const [mobileSearch, setMobileSearch] = React.useState("all");
+
   const onSearchHandler = (filterByVal, value) => {
     if (filterByVal === "Status") {
       setFilterOpn((prevState) => {
         return {
           ...prevState,
           [filterByVal]: value,
-          // filterOpn?.[filterByVal] === "PENDING" ? "COMPLETED" : "PENDING",
         };
       });
     } else if (filterByVal === "mobileNo") {
       const re = /^\(?(\d{3})\)?[- ]?(\d{3})[- ]?(\d{4})$/;
-      if (!re.test(mobileSearch)) {
+      if (!re.test(value)) {
         toast.info("Please provide valid contact number");
       } else {
-        console.log(mobileSearch);
         setFilterOpn((prevState) => {
           return {
             ...prevState,
-            [filterByVal]: mobileSearch,
-            // filterOpn?.[filterByVal] === "PENDING" ? "COMPLETED" : "PENDING",
+            [filterByVal]: value,
           };
         });
       }
+    }else if (filterByVal === "from") {
+      setFilterOpn((prevState) => {
+        return {
+          ...prevState,
+          from: value,
+        };
+      });
+    }else if ( filterByVal === 'to'){
+      setFilterOpn((prevState) => {
+        return {
+          ...prevState,
+          to:value
+        };
+      });
     }
   };
 
   const onDownloadHandler = () => {
     axios
       .get(
-        `${apiUrl}/admin/enquiry/export/?from=20-11-2022&to=21-11-2022`,
+        `${apiUrl}/admin/enquiry/export/?from=22-11-2022&to=23-11-2022`,
 
         {
           headers: {
@@ -255,11 +282,11 @@ export default function Enquiry() {
               <OutlinedInput
                 id="outlined-adornment-password"
                 type={"text"}
-                value={mobileSearch === "all" ? "" : mobileSearch}
-                onChange={(e) => setMobileSearch(e.target.value)}
+                value={filterOpn?.mobileNo === "all" ? "" : filterOpn?.mobileNo}
+                onChange={(e) => onSearchHandler("mobileNo",e.target.value)}
                 endAdornment={
                   <InputAdornment position="end">
-                    {mobileSearch !== "all" && (
+                    {filterOpn?.mobileNo !== "all" && (
                       <IconButton
                         aria-label="toggle password visibility"
                         onClick={() => {
@@ -269,7 +296,13 @@ export default function Enquiry() {
                               mobileNo: "all",
                             };
                           });
-                          setMobileSearch("all");
+                          setSearchOpn((prevState) => {
+                            return {
+                              ...prevState,
+                              mobileNo: "all",
+                            };
+                          });
+                          
                         }}
                         onMouseDown={() => {
                           setFilterOpn((prevState) => {
@@ -278,7 +311,13 @@ export default function Enquiry() {
                               mobileNo: "all",
                             };
                           });
-                          setMobileSearch("all");
+                          setSearchOpn((prevState) => {
+                            return {
+                              ...prevState,
+                              mobileNo: "all",
+                            };
+                          });
+                          
                         }}
                         edge="end"
                       >
@@ -291,21 +330,7 @@ export default function Enquiry() {
               />{" "}
             </FormControl>
           </Grid>
-          <Grid
-            item
-            xs={1}
-            style={{
-              marginRight: "10px",
-              marginLeft: "-15px",
-            }}
-          >
-            <Button
-              variant="contained"
-              onClick={() => onSearchHandler("mobileNo", "mobileNo")}
-            >
-              Search
-            </Button>
-          </Grid>
+
           <Grid item xs={2}>
             <FormControl fullWidth size="small">
               <InputLabel id="demo-simple-select-label">Status</InputLabel>
@@ -334,17 +359,23 @@ export default function Enquiry() {
               }}
             >
               {" "}
-              <span style={{ margin: "0px 8px 0px 10px" }}> From :</span>
+              <span style={{ margin: "0px 8px 0px 10px" }}> From </span>
               <input
                 style={{
                   height: "39px",
                   borderRadius: "5px",
                   border: "1px solid #c4c4c4",
                   padding: "10px 15px",
+
                 }}
+                value={filterOpn?.from}
+                onChange={
+                  (e) => onSearchHandler("from", e.target.value)
+                  }
+                
                 type="date"
               />
-              <span style={{ margin: "0px 10px" }}> To :</span>
+              <span style={{ margin: "0px 10px" }}> To </span>
               <input
                 style={{
                   height: "39px",
@@ -352,15 +383,48 @@ export default function Enquiry() {
                   border: "1px solid #c4c4c4",
                   padding: "10px 15px",
                 }}
+                value={filterOpn?.to}
                 type="date"
+                onChange={
+                  (e) => onSearchHandler("to", e.target.value)
+                  }
               />
             </div>
           </Grid>
-          {/* <Grid item xs>
-            <Button variant="contained" endIcon={<FilterListIcon />}>
-              Filter
+          <Grid
+            item
+            xs={1}
+            style={{
+              marginRight: "10px",
+              marginLeft: "-15px",
+            }}
+          >
+            <Button
+              variant="contained"
+              onClick={() => onSearchHandlerApi()}
+            >
+              Search
             </Button>
-          </Grid> */}
+          </Grid>
+          <Grid
+            item
+            xs={1}
+            style={{
+              marginRight: "10px",
+              marginLeft: "-15px",
+            }}
+          >
+            <Button
+              variant="contained"
+              onClick={() => {
+                location.reload()
+              //   setFilterOpn(null)
+              // setSearchOpn(null)
+              }}
+            >
+              Clear
+            </Button>
+          </Grid>
         </Grid>
       </Card>
 

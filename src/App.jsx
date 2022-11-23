@@ -1,4 +1,3 @@
-import { Category } from "@mui/icons-material";
 import "./App.css";
 import Router from "./Router";
 
@@ -13,7 +12,9 @@ function App() {
 export default App;
 
 // sunshine
+// seacrch option => table=>all
 
 // ton bug
-// seacrch option => table=>all
-//export
+
+// export
+

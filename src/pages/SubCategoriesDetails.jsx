@@ -26,6 +26,9 @@ function SubCategoriesDetails(props) {
     setTon(ton);
   }, [props]);
 
+
+  const calUnit = (tonCal / ton) * unitCal;
+  const calTon = (unitCal / unit) * tonCal;
   return (
     <div>
       <Dialog
@@ -103,9 +106,7 @@ function SubCategoriesDetails(props) {
                     fullWidth
                     autoComplete="family-name"
                     variant="standard"
-                    // 10 ton 1 unit => 9ton => 0.90unit
-                    // ton/ton *
-                    value={(tonCal / ton) * unitCal}
+                    value={calUnit}
                     onChange={(e) => setUnit(e.target.value)}
                   />
                 </Grid>{" "}
@@ -122,7 +123,7 @@ function SubCategoriesDetails(props) {
                     label="Ton"
                     type={"number"}
                     fullWidth
-                    value={(unitCal / unit) * tonCal}
+                    value={calTon}
                     autoComplete="family-name"
                     variant="standard"
                     onChange={(e) => setTon(e.target.value)}
