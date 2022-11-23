@@ -20,6 +20,11 @@ import {
   Grid,
   InputAdornment,
   OutlinedInput,
+  Popover,
+  Backdrop,
+  CardActions,
+  CardContent,
+  CardHeader,
 } from "@mui/material";
 import axios from "axios";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
@@ -102,33 +107,32 @@ export default function Enquiry() {
     getAllEnquiry();
   }, [page, rowsPerPage, searchOpn]);
 
-const onDateFormatChange=(date)=>{
-  let objectDate = new Date(date);
+  const onDateFormatChange = (objectDate) => {
+    let day = objectDate.getDate();
 
+    let month = objectDate.getMonth() + 1;
 
-let day = objectDate.getDate();
-console.log(day); // 23
-
-let month = objectDate.getMonth();
-console.log(month + 1); // 8
-
-let year = objectDate.getFullYear();
-return day + "-" + month + "-" + year
-
-}
-const onSearchHandlerApi=()=>{
-  setSearchOpn(filterOpn);
-}
+    let year = objectDate.getFullYear();
+    return day + "-" + month + "-" + year;
+  };
+  const onSearchHandlerApi = () => {
+    setSearchOpn(filterOpn);
+  };
 
   const getAllEnquiry = () => {
-
     const fStatus = searchOpn?.Status ? searchOpn?.Status : "all";
     const fContact = searchOpn?.mobileNo ? searchOpn?.mobileNo : "all";
-    const fFrom = searchOpn?.from ? onDateFormatChange(searchOpn?.from) : "all";
-    const fTo = searchOpn?.to ? onDateFormatChange(searchOpn?.to) : "all";
+    const fFrom = searchOpn?.from
+      ? onDateFormatChange(new Date(searchOpn?.from))
+      : "all";
+    const fTo = searchOpn?.to
+      ? onDateFormatChange(new Date(searchOpn?.to))
+      : "all";
     axios
       .get(
-        `${apiUrl}/admin/enquiry/${page + 1}/${rowsPerPage}?mobileNo=${fContact}&status=${fStatus}&from=${fFrom}&to=${fTo}`,
+        `${apiUrl}/admin/enquiry/${
+          page + 1
+        }/${rowsPerPage}?mobileNo=${fContact}&status=${fStatus}&from=${fFrom}&to=${fTo}`,
         {
           headers: {
             Authorization: token,
@@ -176,7 +180,6 @@ const onSearchHandlerApi=()=>{
       });
   };
 
-
   const onSearchHandler = (filterByVal, value) => {
     if (filterByVal === "Status") {
       setFilterOpn((prevState) => {
@@ -197,45 +200,50 @@ const onSearchHandlerApi=()=>{
           };
         });
       }
-    }else if (filterByVal === "from") {
+    } else if (filterByVal === "from") {
       setFilterOpn((prevState) => {
         return {
           ...prevState,
           from: value,
         };
       });
-    }else if ( filterByVal === 'to'){
+    } else if (filterByVal === "to") {
       setFilterOpn((prevState) => {
         return {
           ...prevState,
-          to:value
+          to: value,
         };
       });
     }
   };
+  const [showDownload, setShowDownload] = React.useState(false);
+  const [fromDate, setFromDate] = React.useState(new Date());
+  const [toDate, setToDate] = React.useState(new Date());
 
   const onDownloadHandler = () => {
-    axios
-      .get(
-        `${apiUrl}/admin/enquiry/export/?from=22-11-2022&to=23-11-2022`,
+    const fFrom = onDateFormatChange(fromDate);
+    const fTo = onDateFormatChange(toDate);
 
-        {
-          headers: {
-            Authorization: token,
-          },
-        }
-      )
-      .then((res) => {
-        location.href(res);
-        // const { status, message, data } = res.data;
-        // if (status === 200) {
-        //   toast.success(message);
-        //   console.log(data);
-        //   // getAllEnquiry();
-        // } else {
-        //   toast.warn(message);
-        // }
-      });
+    if (!fromDate && !toDate) {
+      toast.info("From and To date is required");
+    } else {
+      axios
+        .get(
+          `${apiUrl}/admin/enquiry/export/?from=${fFrom}&to=${fTo}`,
+
+          {
+            headers: {
+              Authorization: token,
+            },
+          }
+        )
+        .then((res) => {
+          let csvContent = "data:text/csv;charset=utf-8," + res.data;
+          var encodedUri = encodeURI(csvContent);
+          window.open(encodedUri);
+          setShowDownload(false);
+        });
+    }
   };
 
   return (
@@ -258,11 +266,87 @@ const onSearchHandlerApi=()=>{
       >
         <Button
           variant="contained"
-          onClick={() => onDownloadHandler()}
+          aria-describedby={"download"}
+          onClick={
+            () => {
+              setShowDownload(true);
+            }
+            // onDownloadHandler()
+          }
           endIcon={<DownloadIcon />}
         >
           Download
         </Button>
+        <Backdrop
+          sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          open={showDownload}
+        >
+          <Card>
+            <h5
+              style={{
+                textAlign: "center",
+                marginTop: "20px",
+              }}
+            >
+              Download Entity
+            </h5>
+            <CardContent>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                }}
+              >
+                {" "}
+                <span style={{ margin: "0px 8px 0px 10px" }}> From </span>
+                <input
+                  style={{
+                    height: "39px",
+                    borderRadius: "5px",
+                    border: "1px solid #c4c4c4",
+                    padding: "10px 15px",
+                  }}
+                  value={fromDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  type="date"
+                />
+                <span style={{ margin: "0px 10px" }}> To </span>
+                <input
+                  style={{
+                    height: "39px",
+                    borderRadius: "5px",
+                    border: "1px solid #c4c4c4",
+                    padding: "10px 15px",
+                  }}
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                />
+              </div>
+            </CardContent>
+
+            <CardActions
+              style={{
+                display: "flex",
+                justifyContent: "right",
+              }}
+            >
+              <Button
+                variant="contained"
+                onClick={() => setShowDownload(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                onClick={onDownloadHandler}
+                endIcon={<DownloadIcon />}
+              >
+                Download
+              </Button>
+            </CardActions>
+          </Card>
+        </Backdrop>
       </div>
 
       <Card>
@@ -283,7 +367,7 @@ const onSearchHandlerApi=()=>{
                 id="outlined-adornment-password"
                 type={"text"}
                 value={filterOpn?.mobileNo === "all" ? "" : filterOpn?.mobileNo}
-                onChange={(e) => onSearchHandler("mobileNo",e.target.value)}
+                onChange={(e) => onSearchHandler("mobileNo", e.target.value)}
                 endAdornment={
                   <InputAdornment position="end">
                     {filterOpn?.mobileNo !== "all" && (
@@ -302,7 +386,6 @@ const onSearchHandlerApi=()=>{
                               mobileNo: "all",
                             };
                           });
-                          
                         }}
                         onMouseDown={() => {
                           setFilterOpn((prevState) => {
@@ -317,7 +400,6 @@ const onSearchHandlerApi=()=>{
                               mobileNo: "all",
                             };
                           });
-                          
                         }}
                         edge="end"
                       >
@@ -366,13 +448,9 @@ const onSearchHandlerApi=()=>{
                   borderRadius: "5px",
                   border: "1px solid #c4c4c4",
                   padding: "10px 15px",
-
                 }}
                 value={filterOpn?.from}
-                onChange={
-                  (e) => onSearchHandler("from", e.target.value)
-                  }
-                
+                onChange={(e) => onSearchHandler("from", e.target.value)}
                 type="date"
               />
               <span style={{ margin: "0px 10px" }}> To </span>
@@ -385,9 +463,7 @@ const onSearchHandlerApi=()=>{
                 }}
                 value={filterOpn?.to}
                 type="date"
-                onChange={
-                  (e) => onSearchHandler("to", e.target.value)
-                  }
+                onChange={(e) => onSearchHandler("to", e.target.value)}
               />
             </div>
           </Grid>
@@ -399,10 +475,7 @@ const onSearchHandlerApi=()=>{
               marginLeft: "-15px",
             }}
           >
-            <Button
-              variant="contained"
-              onClick={() => onSearchHandlerApi()}
-            >
+            <Button variant="contained" onClick={() => onSearchHandlerApi()}>
               Search
             </Button>
           </Grid>
@@ -417,9 +490,9 @@ const onSearchHandlerApi=()=>{
             <Button
               variant="contained"
               onClick={() => {
-                location.reload()
-              //   setFilterOpn(null)
-              // setSearchOpn(null)
+                location.reload();
+                //   setFilterOpn(null)
+                // setSearchOpn(null)
               }}
             >
               Clear
