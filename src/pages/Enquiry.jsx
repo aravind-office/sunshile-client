@@ -235,12 +235,16 @@ export default function Enquiry() {
     }
   };
   const [showDownload, setShowDownload] = React.useState(false);
-  const [fromDate, setFromDate] = React.useState(new Date());
-  const [toDate, setToDate] = React.useState(new Date());
+  const [fromDate, setFromDate] = React.useState(null);
+  const [toDate, setToDate] = React.useState(null);
 
   const onDownloadHandler = () => {
-    const fFrom = onDateFormatChange(fromDate);
-    const fTo = onDateFormatChange(toDate);
+    const fFrom = fromDate
+      ? onDateFormatChange(new Date(fromDate))
+      : onDateFormatChange(new Date());
+    const fTo = toDate
+      ? onDateFormatChange(new Date(toDate))
+      : onDateFormatChange(new Date());
 
     if (!fromDate && !toDate) {
       toast.info("From and To date is required");
