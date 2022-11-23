@@ -81,7 +81,7 @@ export default function Login() {
           }
         })
         .catch((e) => {
-          console.log;
+          toast.error("Login is failed");
         });
     }
   };

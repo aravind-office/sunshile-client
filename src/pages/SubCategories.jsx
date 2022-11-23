@@ -48,17 +48,22 @@ export default function SubCategories() {
 
   const getProductCategoryById = () => {
     if (id) {
-      axios.get(`${apiUrl}/product/${id}`).then((res) => {
-        const { status, message, data } = res.data;
-        if (status === 200) {
-          setProduct(data.product);
-          setCategory(data.product.categories ? data.product.categories : []);
-        } else {
-          toast.warn(message);
-          setProduct({});
-          setCategory([]);
-        }
-      });
+      axios
+        .get(`${apiUrl}/product/${id}`)
+        .then((res) => {
+          const { status, message, data } = res.data;
+          if (status === 200) {
+            setProduct(data.product);
+            setCategory(data.product.categories ? data.product.categories : []);
+          } else {
+            toast.warn(message);
+            setProduct({});
+            setCategory([]);
+          }
+        })
+        .catch((e) => {
+          toast.error("Fetch category failed");
+        });
     }
   };
 
@@ -100,14 +105,19 @@ export default function SubCategories() {
             } else {
               const formData = new FormData();
               file ? formData.append("file", file) : "";
-              axios.post(`${apiUrl}/file`, formData).then((res) => {
-                const { status, message, data } = res.data;
-                if (status === 201) {
-                  updateCategoryApi(data?.imageId, updateCatData?.data);
-                } else {
-                  toast.warn(message);
-                }
-              });
+              axios
+                .post(`${apiUrl}/file`, formData)
+                .then((res) => {
+                  const { status, message, data } = res.data;
+                  if (status === 201) {
+                    updateCategoryApi(data?.imageId, updateCatData?.data);
+                  } else {
+                    toast.warn(message);
+                  }
+                })
+                .catch((e) => {
+                  toast.error("add file of category failed");
+                });
             }
           }
         }
@@ -126,14 +136,19 @@ export default function SubCategories() {
         } else {
           const formData = new FormData();
           file ? formData.append("file", file) : "";
-          axios.post(`${apiUrl}/file`, formData).then((res) => {
-            const { status, message, data } = res.data;
-            if (status === 201) {
-              addCategoryApi(data?.imageId);
-            } else {
-              toast.warn(message);
-            }
-          });
+          axios
+            .post(`${apiUrl}/file`, formData)
+            .then((res) => {
+              const { status, message, data } = res.data;
+              if (status === 201) {
+                addCategoryApi(data?.imageId);
+              } else {
+                toast.warn(message);
+              }
+            })
+            .catch((e) => {
+              toast.error("add file category failed");
+            });
         }
       }
     } else {
@@ -179,9 +194,15 @@ export default function SubCategories() {
             getProductCategoryById();
             toast.success(message);
             onCloseHandler();
+          } else if (status === 401) {
+            navigate(`/admin/login`);
+            localStorage.clear();
           } else {
             toast.warn(message);
           }
+        })
+        .catch((e) => {
+          toast.error("Add category for product failed");
         });
     }
   };
@@ -219,9 +240,15 @@ export default function SubCategories() {
             getProductCategoryById();
             toast.success(message);
             onCloseHandler();
+          } else if (status === 401) {
+            navigate(`/admin/login`);
+            localStorage.clear();
           } else {
             toast.warn(message);
           }
+        })
+        .catch((e) => {
+          toast.error("Update category failed");
         });
     }
   };
@@ -241,9 +268,15 @@ export default function SubCategories() {
             toast.success(message);
             getProductCategoryById();
             setShowDelete(false);
+          } else if (status === 401) {
+            navigate(`/admin/login`);
+            localStorage.clear();
           } else {
             toast.warn(message);
           }
+        })
+        .catch((e) => {
+          toast.error("Delete category failed");
         });
     }
   };

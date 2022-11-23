@@ -37,6 +37,7 @@ import ShowCategories from "../components/ShowCategories";
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
 import DownloadIcon from "@mui/icons-material/Download";
+import { useNavigate } from "react-router-dom";
 const columns = [
   { id: "name", label: "Name" },
   { id: "mobileNo", label: "Contact", minWidth: 170 },
@@ -82,6 +83,7 @@ const columns = [
 ];
 
 export default function Enquiry() {
+  const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
@@ -116,7 +118,16 @@ export default function Enquiry() {
     return day + "-" + month + "-" + year;
   };
   const onSearchHandlerApi = () => {
-    setSearchOpn(filterOpn);
+    if (filterOpn?.mobileNo) {
+      const re = /^\(?(\d{3})\)?[- ]?(\d{3})[- ]?(\d{4})$/;
+      if (!re.test(filterOpn?.mobileNo)) {
+        toast.info("Please provide valid contact number");
+      } else {
+        setSearchOpn(filterOpn);
+      }
+    } else {
+      setSearchOpn(filterOpn);
+    }
   };
 
   const getAllEnquiry = () => {
@@ -152,9 +163,15 @@ export default function Enquiry() {
 
           setRows(res);
           setEnquiry(data?.enquires);
+        } else if (status === 401) {
+          navigate(`/admin/login`);
+          localStorage.clear();
         } else {
           toast.warn(message);
         }
+      })
+      .catch((e) => {
+        toast.error("Fetch enquiry failed");
       });
   };
 
@@ -174,9 +191,15 @@ export default function Enquiry() {
         if (status === 200) {
           toast.success(message);
           getAllEnquiry();
+        } else if (status === 401) {
+          navigate(`/admin/login`);
+          localStorage.clear();
         } else {
           toast.warn(message);
         }
+      })
+      .catch((e) => {
+        toast.error("Update enquiry failed");
       });
   };
 
@@ -189,17 +212,12 @@ export default function Enquiry() {
         };
       });
     } else if (filterByVal === "mobileNo") {
-      const re = /^\(?(\d{3})\)?[- ]?(\d{3})[- ]?(\d{4})$/;
-      if (!re.test(value)) {
-        toast.info("Please provide valid contact number");
-      } else {
-        setFilterOpn((prevState) => {
-          return {
-            ...prevState,
-            [filterByVal]: value,
-          };
-        });
-      }
+      setFilterOpn((prevState) => {
+        return {
+          ...prevState,
+          [filterByVal]: value,
+        };
+      });
     } else if (filterByVal === "from") {
       setFilterOpn((prevState) => {
         return {
@@ -242,6 +260,12 @@ export default function Enquiry() {
           var encodedUri = encodeURI(csvContent);
           window.open(encodedUri);
           setShowDownload(false);
+        })
+        .catch((e) => {
+          if (e.response.status === 401) {
+            navigate(`/admin/login`);
+            localStorage.clear();
+          }
         });
     }
   };

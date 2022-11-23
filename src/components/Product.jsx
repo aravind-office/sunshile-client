@@ -70,14 +70,19 @@ export default function Product() {
           } else {
             const formData = new FormData();
             file ? formData.append("file", file) : "";
-            axios.post(`${apiUrl}/file`, formData).then((res) => {
-              const { status, message, data } = res.data;
-              if (status === 201) {
-                updateProductApi(data?.imageId, update?.data);
-              } else {
-                toast.warn(message);
-              }
-            });
+            axios
+              .post(`${apiUrl}/file`, formData)
+              .then((res) => {
+                const { status, message, data } = res.data;
+                if (status === 201) {
+                  updateProductApi(data?.imageId, update?.data);
+                } else {
+                  toast.warn(message);
+                }
+              })
+              .catch((e) => {
+                toast.error("add file failed");
+              });
           }
         } else {
           toast.warn("Please you can upload file type .jpeg, .jpg, .png only.");
@@ -97,14 +102,19 @@ export default function Product() {
         } else {
           const formData = new FormData();
           file ? formData.append("file", file) : "";
-          axios.post(`${apiUrl}/file`, formData).then((res) => {
-            const { status, message, data } = res.data;
-            if (status === 201) {
-              addProductApi(data?.imageId);
-            } else {
-              toast.warn(message);
-            }
-          });
+          axios
+            .post(`${apiUrl}/file`, formData)
+            .then((res) => {
+              const { status, message, data } = res.data;
+              if (status === 201) {
+                addProductApi(data?.imageId);
+              } else {
+                toast.warn(message);
+              }
+            })
+            .catch((e) => {
+              toast.error("add file failed");
+            });
         }
       } else {
         toast.warn("Please you can upload file type .jpeg, .jpg, .png only.");
@@ -133,9 +143,15 @@ export default function Product() {
           toast.success(message);
           onCloseHandler();
           navigate(`products/${data?.product?.id}`);
+        } else if (status === 401) {
+          navigate(`/admin/login`);
+          localStorage.clear();
         } else {
           toast.warn(message);
         }
+      })
+      .catch((e) => {
+        toast.error("add product failed");
       });
   };
 
@@ -161,21 +177,32 @@ export default function Product() {
           toast.success(message);
           onCloseHandler();
           navigate(`products/${data?.product?.id}`);
+        } else if (status === 401) {
+          navigate(`/admin/login`);
+          localStorage.clear();
         } else {
           toast.warn(message);
         }
+      })
+      .catch((e) => {
+        toast.error("update product failed");
       });
   };
 
   const getAllProduct = () => {
-    axios.get(`${apiUrl}/product`).then((res) => {
-      const { status, message, data } = res.data;
-      if (status === 200) {
-        setCards(data?.products);
-      } else {
-        toast.warn(message);
-      }
-    });
+    axios
+      .get(`${apiUrl}/product`)
+      .then((res) => {
+        const { status, message, data } = res.data;
+        if (status === 200) {
+          setCards(data?.products);
+        } else {
+          toast.warn(message);
+        }
+      })
+      .catch((e) => {
+        toast.error("get product failed");
+      });
   };
 
   const onCloseHandler = () => {
@@ -200,9 +227,15 @@ export default function Product() {
             toast.success(message);
             setShowDelete(false);
             getAllProduct();
+          } else if (status === 401) {
+            navigate(`/admin/login`);
+            localStorage.clear();
           } else {
             toast.warn(message);
           }
+        })
+        .catch((e) => {
+          toast.error("Delete product failed");
         });
     }
   };

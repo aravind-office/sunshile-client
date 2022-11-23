@@ -12,9 +12,4 @@ function App() {
 export default App;
 
 // sunshine
-// seacrch option => table=>all
-
 // ton bug
-
-// export
-

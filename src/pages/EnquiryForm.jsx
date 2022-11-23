@@ -84,15 +84,20 @@ export default function EnquiryForm() {
         ton: data?.ton,
         amount: data?.amount,
       };
-      axios.post(`${apiUrl}/enquiry`, req).then((res) => {
-        const { status, message, data } = res.data;
-        if (status === 201) {
-          toast.success("Enquiry sent successfully");
-          navigate(`/`);
-        } else {
-          toast.warn(message);
-        }
-      });
+      axios
+        .post(`${apiUrl}/enquiry`, req)
+        .then((res) => {
+          const { status, message, data } = res.data;
+          if (status === 201) {
+            toast.success("Enquiry sent successfully");
+            navigate(`/`);
+          } else {
+            toast.warn(message);
+          }
+        })
+        .catch((e) => {
+          toast.error("Sending enquiry failed");
+        });
     }
   };
 
