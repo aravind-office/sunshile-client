@@ -7,24 +7,44 @@ function SlideImage(props) {
     {
       name: "Random Name #1",
       description: "Probably the most random thing you have ever seen!",
-      url: "/assets/sand.png",
+      url: "/assets/dashboard/one.jpeg",
     },
     {
       name: "Random Name #2",
       description: "Hello World!",
-      url: "/assets/SarsenStones.png",
+      url: "/assets/dashboard/two.jpeg",
     },
     {
       name: "Random Name #1",
       description: "Probably the most random thing you have ever seen!",
-      url: "/assets/sand.png",
+      url: "/assets/dashboard/three.jpeg",
+    },
+    {
+      name: "Random Name #1",
+      description: "Probably the most random thing you have ever seen!",
+      url: "/assets/dashboard/four.jpeg",
+    },
+    {
+      name: "Random Name #1",
+      description: "Probably the most random thing you have ever seen!",
+      url: "/assets/dashboard/five.jpeg",
+    },
+    {
+      name: "Random Name #1",
+      description: "Probably the most random thing you have ever seen!",
+      url: "/assets/dashboard/six.jpeg",
+    },
+    {
+      name: "Random Name #1",
+      description: "Probably the most random thing you have ever seen!",
+      url: "/assets/dashboard/seven.jpeg",
     },
   ];
 
   return (
     <div
       style={{
-        marginTop: "70px",
+        marginTop: "40px",
       }}
     >
       <Carousel>
@@ -42,7 +62,7 @@ function Item(props) {
       <img
         style={{
           width: "100%",
-          height: "300px",
+          height: "400px",
         }}
         src={props.item.url}
       />

@@ -70,7 +70,8 @@ export default function Header(props) {
   const drawer = (
     <Box onClick={handleDrawerToggle} sx={{ textAlign: "center" }}>
       <Typography variant="h6" sx={{ my: 2 }}>
-        Sunshine International
+        {/* Sunshine International */}
+        <img src="/assets/sunshine-logo.png" width={"100px"} />
       </Typography>
       <Divider />
       <List>
@@ -133,6 +134,22 @@ export default function Header(props) {
           >
             <MenuIcon />
           </IconButton>
+
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{
+              mr: 2,
+              display: { xs: "flex", md: "flex", sm: "block" },
+
+              width: "140px",
+              cursor: "pointer",
+            }}
+            onClick={() => navigate("/")}
+          >
+            <img src="/assets/sunshine-logo.png" width={"100px"} />
+          </Typography>
 
           <Typography
             variant="h6"
