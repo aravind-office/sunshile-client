@@ -4,10 +4,10 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "set PORT=3000 && vite ",
+    "dev": "set --port 5000 && vite ",
     "build": "vite build",
-    "start": "vite",
-    "preview": "vite preview"
+    "start": "vite --port 5000",
+    "preview": "vite preview --port 5000"
   },
   "dependencies": {
     "@emotion/react": "^11.10.5",
