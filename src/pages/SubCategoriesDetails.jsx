@@ -26,7 +26,6 @@ function SubCategoriesDetails(props) {
     setTon(ton);
   }, [props]);
 
-
   const calUnit = (tonCal / ton) * unitCal;
   const calTon = (unitCal / unit) * tonCal;
   return (
@@ -130,7 +129,6 @@ function SubCategoriesDetails(props) {
                   />
                 </Grid>
               </Grid>
-              {/* {amount} <br /> */}
               <Grid
                 item
                 xs={12}

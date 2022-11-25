@@ -143,12 +143,12 @@ export default function Header(props) {
               mr: 2,
               display: { xs: "flex", md: "flex", sm: "block" },
 
-              width: "140px",
+              // width: "300px",
               cursor: "pointer",
             }}
             onClick={() => navigate("/")}
           >
-            <img src="/assets/sunshine-logo.png" width={"100px"} />
+            <img src="/assets/logo.png" height={"50px"} width={"300px"} />
           </Typography>
 
           <Typography
@@ -168,7 +168,7 @@ export default function Header(props) {
             }}
             onClick={() => navigate("/")}
           >
-            Sunshine International
+            {/* Sunshine International */}
           </Typography>
 
           {/* <Typography
