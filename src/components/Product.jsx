@@ -388,7 +388,7 @@ export default function Product() {
       {/* </Container> */}
       {/* </main> */}
       {/* Footer */}
-      <Footer />
+
       {/* End footer */}
 
       <ResponsiveDialog

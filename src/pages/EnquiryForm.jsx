@@ -221,7 +221,7 @@ export default function EnquiryForm() {
             </Box>
           </React.Fragment>
         </Paper>
-        <Copyright />
+        {/* <Copyright /> */}
       </Container>
     </ThemeProvider>
   );

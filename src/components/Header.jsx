@@ -46,10 +46,10 @@ export default function Header(props) {
           path: "/",
         },
 
-        {
-          title: "Contact Us",
-          path: "/",
-        },
+        // {
+        //   title: "Contact Us",
+        //   path: "/",
+        // },
       ];
   const container =
     window !== undefined ? () => window().document.body : undefined;

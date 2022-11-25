@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter, Link, Route, Routes, Navigate } from "react-router-dom";
+import Footer from "./components/Footer";
 import Header from "./components/Header";
 import Login from "./pages/admin/Login";
 import Enquiry from "./pages/Enquiry";
@@ -25,6 +26,7 @@ function Router() {
         add sub product 
         Enquiry  */}
       </Routes>
+      <Footer />
     </BrowserRouter>
   );
 }

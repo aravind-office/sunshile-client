@@ -13,7 +13,7 @@ function Footer() {
       component="footer"
     >
       <Typography variant="h6" align="center" gutterBottom>
-        Footer
+        {/* Sunshine International */}
       </Typography>
       <Typography
         variant="subtitle1"
@@ -21,12 +21,17 @@ function Footer() {
         color="text.secondary"
         component="p"
       >
-        Something here to give the footer a purpose!
+        Design maintained by Master's Enterprises
+        {/* No.7/6, Kolappakam , Nedukundram Village,Vandalur */}
+        <br />
+        +91 7845959905
+        {/* Kelampakkam Main Road,Chennai - 600 048 */}
       </Typography>
       <Typography variant="body2" color="text.secondary" align="center">
         {"Copyright © "}
+        {/* Design maintained */}
         <Link color="inherit" to="/">
-          Your Website
+          Master enterprises
         </Link>{" "}
         {new Date().getFullYear()}
         {"."}
