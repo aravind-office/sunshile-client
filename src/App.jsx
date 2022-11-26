@@ -12,4 +12,4 @@ function App() {
 export default App;
 
 // sunshine
-// ton bug
+// enquiry responsive

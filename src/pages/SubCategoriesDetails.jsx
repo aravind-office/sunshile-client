@@ -48,7 +48,7 @@ function SubCategoriesDetails(props) {
   const tonCalculation = (val) => {
     if (val >= 0) {
       setTon(val);
-      setAmount(unit * amount);
+      setAmount((val / ton) * amount);
       setUnit(val / ton);
     }
   };
@@ -65,19 +65,11 @@ function SubCategoriesDetails(props) {
       >
         {/* <DialogTitle id="responsive-dialog-title">{name}</DialogTitle> */}
         <DialogContent>
-          <div
-            style={{
-              display: "flex",
-            }}
-          >
-            <div
-              style={{
-                flex: 1,
-              }}
-            >
+          <Grid container spacing={3}>
+            <Grid item xs={12} sm={12} md={6}>
               <img
                 style={{
-                  width: "200px",
+                  width: "100%",
                   height: "200px",
                   display: "inline-block",
                   objectFit: "content",
@@ -85,13 +77,8 @@ function SubCategoriesDetails(props) {
                 }}
                 src={image?.previewUrl}
               />
-            </div>
-            <div
-              style={{
-                flex: 1,
-                // padding: "5px 20px",
-              }}
-            >
+            </Grid>
+            <Grid item xs={12} sm={12} md={6}>
               <br />
               <Grid
                 container
@@ -168,8 +155,8 @@ function SubCategoriesDetails(props) {
                   Amount : Rs.{amountCal?.toFixed(2)}
                 </Typography>
               </Grid>
-            </div>
-          </div>
+            </Grid>
+          </Grid>
         </DialogContent>
         <DialogActions>
           <Button autoFocus onClick={onClose}>
