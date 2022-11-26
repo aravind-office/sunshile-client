@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter, Link, Route, Routes, Navigate } from "react-router-dom";
+import { Link, Route, Routes, Navigate, HashRouter } from "react-router-dom";
 import Footer from "./components/Footer";
 import Header from "./components/Header";
 import Login from "./pages/admin/Login";
@@ -11,7 +11,7 @@ import SubCategories from "./pages/SubCategories";
 
 function Router() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -19,15 +19,9 @@ function Router() {
         <Route path="/enquiry-form/:categoryId" element={<EnquiryForm />} />
         <Route path="/admin/login" element={<Login />} />
         <Route path="/enquiry" element={<Enquiry />} />
-        {/* admin login
-        add product
-        delete 
-        update product 
-        add sub product 
-        Enquiry  */}
       </Routes>
       <Footer />
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 

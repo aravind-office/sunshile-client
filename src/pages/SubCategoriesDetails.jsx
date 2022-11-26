@@ -18,16 +18,41 @@ function SubCategoriesDetails(props) {
   const { open, onClose } = props;
 
   const [unitCal, setUnit] = React.useState(unit);
-
+  const [amountCal, setAmount] = React.useState(amount);
   const [tonCal, setTon] = React.useState(ton);
 
   React.useEffect(() => {
     setUnit(unit);
     setTon(ton);
+    setAmount(amount);
   }, [props]);
 
-  const calUnit = (tonCal / ton) * unitCal;
-  const calTon = (unitCal / unit) * tonCal;
+  const onChangeHandler = (e) => {
+    // if (/^\d+$/.test(e.target.value)) {
+    if (e.target.name === "unit") {
+      unitCalculation(e.target.value);
+    } else if (e.target.name === "ton") {
+      tonCalculation(e.target.value);
+    }
+    // }
+  };
+
+  const unitCalculation = (val) => {
+    if (val >= 0) {
+      setTon(val * ton);
+      setAmount(val * amount);
+      setUnit(val);
+    }
+  };
+
+  const tonCalculation = (val) => {
+    if (val >= 0) {
+      setTon(val);
+      setAmount(unit * amount);
+      setUnit(val / ton);
+    }
+  };
+
   return (
     <div>
       <Dialog
@@ -105,8 +130,8 @@ function SubCategoriesDetails(props) {
                     fullWidth
                     autoComplete="family-name"
                     variant="standard"
-                    value={calUnit}
-                    onChange={(e) => setUnit(e.target.value)}
+                    value={unitCal}
+                    onChange={onChangeHandler}
                   />
                 </Grid>{" "}
                 <Grid
@@ -122,10 +147,10 @@ function SubCategoriesDetails(props) {
                     label="Ton"
                     type={"number"}
                     fullWidth
-                    value={calTon}
+                    value={tonCal}
                     autoComplete="family-name"
                     variant="standard"
-                    onChange={(e) => setTon(e.target.value)}
+                    onChange={onChangeHandler}
                   />
                 </Grid>
               </Grid>
@@ -140,7 +165,7 @@ function SubCategoriesDetails(props) {
                     color: "green",
                   }}
                 >
-                  Amount : Rs.{((tonCal / ton) * unitCal * amount).toFixed(2)}
+                  Amount : Rs.{amountCal?.toFixed(2)}
                 </Typography>
               </Grid>
             </div>
@@ -154,9 +179,9 @@ function SubCategoriesDetails(props) {
             onClick={() =>
               navigate(`/enquiry-form/${categoryId}`, {
                 state: JSON.stringify({
-                  amount: ((tonCal / ton) * unitCal * amount).toFixed(2),
-                  ton: (unitCal / unit) * tonCal,
-                  unit: (tonCal / ton) * unitCal,
+                  amount: amountCal?.toFixed(2),
+                  ton: tonCal,
+                  unit: unitCal,
                   productId,
                 }),
               })
