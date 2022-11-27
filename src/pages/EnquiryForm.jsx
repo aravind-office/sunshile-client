@@ -58,12 +58,7 @@ export default function EnquiryForm() {
     const validRegex =
       /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
 
-    if (
-      !enquiryFormData?.firstName ||
-      !enquiryFormData?.lastName ||
-      !enquiryFormData?.enquiry ||
-      !enquiryFormData?.pincode
-    ) {
+    if (!enquiryFormData?.firstName) {
       toast.info("Please fill required field");
     } else if (
       !enquiryFormData?.mobileNo ||
@@ -71,7 +66,7 @@ export default function EnquiryForm() {
     ) {
       toast.info("Please provide valid contact number");
     } else if (
-      !enquiryFormData?.email ||
+      enquiryFormData?.email &&
       !enquiryFormData?.email.match(validRegex)
     ) {
       toast.info("Please provide valid email");
@@ -143,7 +138,6 @@ export default function EnquiryForm() {
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  required
                   id="lastName"
                   value={enquiryFormData?.lastName}
                   name="lastName"
@@ -182,7 +176,6 @@ export default function EnquiryForm() {
 
               <Grid item xs={12} sm={6}>
                 <TextField
-                  required
                   id="zip"
                   type={"number"}
                   value={enquiryFormData?.pincode}
@@ -203,7 +196,6 @@ export default function EnquiryForm() {
                   onChange={onChangeHandler}
                   fullWidth
                   multiline
-                  required
                   rows={4}
                   variant="standard"
                 />
