@@ -21,7 +21,7 @@ function Footer() {
         color="text.secondary"
         component="p"
       >
-        Design maintained by Master's Enterprises
+        Design maintained by Master Enterprises
         {/* No.7/6, Kolappakam , Nedukundram Village,Vandalur */}
         <br />
         +91 7845959905
